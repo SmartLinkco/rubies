@@ -1,5 +1,6 @@
 import { brand } from "@rubies/shared";
 import Link from "next/link";
+import { AppImage } from "@/components/AppImage";
 import { AppShell } from "@/components/AppShell";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
 import { getRestaurant } from "@/lib/api";
@@ -20,12 +21,14 @@ export default async function AboutPage() {
   return (
     <AppShell restaurant={restaurant} title="About" tagline={name}>
       <div className="space-y-4 px-4 pb-4">
-        <section className="relative mt-2 overflow-hidden rounded-card text-white shadow-soft">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/about/about-kitchen.png"
+        <section className="relative mt-2 min-h-[200px] overflow-hidden rounded-card text-white shadow-soft">
+          <AppImage
+            src="/about/about-kitchen.webp"
             alt=""
-            className="absolute inset-0 h-full w-full object-cover"
+            fill
+            sizes="(max-width: 768px) 100vw, 480px"
+            className="object-cover"
+            priority
           />
           <div
             className="absolute inset-0 bg-gradient-to-t from-rubies-red via-rubies-red/85 to-rubies-red/55"
@@ -42,12 +45,15 @@ export default async function AboutPage() {
         </section>
 
         <section className="overflow-hidden rounded-card bg-white/90 shadow-soft">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/about/about-food.png"
-            alt="Plated Ghanaian dishes from Rubies Cuisine"
-            className="h-40 w-full object-cover"
-          />
+          <div className="relative h-40 w-full">
+            <AppImage
+              src="/about/about-food.webp"
+              alt="Plated Ghanaian dishes from Rubies Cuisine"
+              fill
+              sizes="(max-width: 768px) 100vw, 480px"
+              className="object-cover"
+            />
+          </div>
           <div className="p-4">
             <h2 className="text-sm font-semibold text-ink">Home-cooked plates</h2>
             <p className="mt-2 text-sm text-muted">

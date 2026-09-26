@@ -33,7 +33,7 @@ function AdminReviews() {
       await load();
       toast(review.hidden ? "Review visible" : "Review hidden");
     } catch (err) {
-      toast(err instanceof ApiRequestError ? err.message : "Update failed");
+      toast({ message: err instanceof ApiRequestError ? err.message : "Update failed", sound: false });
     }
   }
 

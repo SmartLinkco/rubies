@@ -55,7 +55,7 @@ function AdminDashboard() {
       setData(await clientApi.getAdminDashboard());
       setRefreshedAt(new Date());
     } catch (err) {
-      toast(err instanceof ApiRequestError ? err.message : "Failed to load dashboard");
+      toast({ message: err instanceof ApiRequestError ? err.message : "Failed to load dashboard", sound: false });
     }
   }, [toast]);
 

@@ -19,13 +19,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Rubies Cuisine",
     description: "Are you hungry? Don't wait! Home-cooked Ghanaian meals delivered in Amamorley.",
-    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "Rubies Cuisine" }],
+    images: [{ url: "/og-default.webp", width: 1200, height: 630, alt: "Rubies Cuisine" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Rubies Cuisine",
     description: "Are you hungry? Don't wait! Home-cooked Ghanaian meals delivered in Amamorley.",
-    images: ["/og-default.png"],
+    images: ["/og-default.webp"],
   },
 };
 

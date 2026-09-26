@@ -216,11 +216,15 @@ function CourierIllustration() {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src="/delivery-rider.png"
+      src="/delivery-rider.webp"
       alt=""
       aria-hidden
+      width={130}
+      height={148}
       className="h-[148px] w-auto max-w-[130px] object-contain drop-shadow-[0_12px_20px_rgba(0,0,0,0.22)]"
       draggable={false}
+      decoding="async"
+      fetchPriority="high"
     />
   );
 }

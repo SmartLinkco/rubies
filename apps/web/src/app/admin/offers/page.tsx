@@ -93,7 +93,7 @@ function AdminOffers() {
       setShowForm(false);
       await load();
     } catch (err) {
-      toast(err instanceof ApiRequestError ? err.message : "Save failed");
+      toast({ message: err instanceof ApiRequestError ? err.message : "Save failed", sound: false });
     } finally {
       setBusy(false);
     }
@@ -104,7 +104,7 @@ function AdminOffers() {
       await clientApi.updateOffer(offer.id, { active: !offer.active });
       await load();
     } catch (err) {
-      toast(err instanceof ApiRequestError ? err.message : "Update failed");
+      toast({ message: err instanceof ApiRequestError ? err.message : "Update failed", sound: false });
     }
   }
 

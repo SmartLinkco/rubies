@@ -200,7 +200,7 @@ function CheckoutForm() {
       const msg =
         err instanceof ApiRequestError ? err.message : "Could not place order";
       setError(msg);
-      toast(msg);
+      toast({ message: msg, sound: false });
     } finally {
       setBusy(false);
     }

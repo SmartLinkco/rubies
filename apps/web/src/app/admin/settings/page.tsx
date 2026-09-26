@@ -63,7 +63,7 @@ function AdminSettings() {
       setSettings(updated);
       toast("Settings saved");
     } catch (err) {
-      toast(err instanceof ApiRequestError ? err.message : "Save failed");
+      toast({ message: err instanceof ApiRequestError ? err.message : "Save failed", sound: false });
     } finally {
       setBusy(false);
     }

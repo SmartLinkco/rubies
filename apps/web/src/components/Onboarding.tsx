@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AppImage } from "@/components/AppImage";
 import { BrandMark } from "@/components/BrandMark";
 
 const STORAGE_KEY = "rubies_onboarded_v1";
@@ -9,19 +10,19 @@ const slides = [
   {
     title: "Home-cooked Ghanaian meals",
     body: "Jollof, fufu, banku, and grilled chicken, prepared fresh in Amamorley.",
-    image: "/onboarding/onboard-1.png",
+    image: "/onboarding/onboard-1.webp",
     tone: "from-[#e10600]/75 via-[#1b3a9c]/45 to-transparent",
   },
   {
     title: "Order your way",
     body: "Build a cart in the app, or call / WhatsApp us directly. Whichever is easier.",
-    image: "/onboarding/onboard-2.png",
+    image: "/onboarding/onboard-2.webp",
     tone: "from-[#1b3a9c]/75 via-[#e10600]/40 to-transparent",
   },
   {
     title: "Closed Wednesdays",
     body: "Browse anytime. Ordering pauses on Wednesdays. We open again Thursday.",
-    image: "/onboarding/onboard-3.png",
+    image: "/onboarding/onboard-3.webp",
     tone: "from-[#b80500]/70 via-[#2f4fb8]/40 to-transparent",
   },
 ] as const;
@@ -53,7 +54,7 @@ export function Onboarding() {
     return (
       <div className="fixed inset-0 z-[60] flex items-center justify-center bg-cream animate-fade-in">
         <div className="text-center animate-rise">
-          <BrandMark size={80} className="mx-auto mb-5 shadow-soft" />
+          <BrandMark size={80} className="mx-auto mb-5 shadow-soft" priority />
           <h1 className="font-display text-4xl font-bold text-ink">Rubies Cuisine</h1>
           <p className="mt-2 text-sm font-medium tracking-wide text-rubies-blue">
             Are you hungry? Don&apos;t wait!
@@ -76,12 +77,14 @@ export function Onboarding() {
       </button>
 
       <div className="relative mx-4 mt-16 h-[48vh] overflow-hidden rounded-sheet shadow-soft animate-fade-in">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <AppImage
           key={slide.image}
           src={slide.image}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover"
+          fill
+          sizes="(max-width: 768px) 100vw, 480px"
+          priority={index === 0}
+          className="object-cover"
         />
         <div
           className={`absolute inset-0 bg-gradient-to-t ${slide.tone}`}

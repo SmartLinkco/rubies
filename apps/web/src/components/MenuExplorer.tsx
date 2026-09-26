@@ -6,9 +6,9 @@ import { MenuItemCard } from "@/components/MenuItemCard";
 import { categoryForSlug } from "@/lib/dish";
 
 const CATEGORY_THUMB: Record<string, string> = {
-  Rice: "/categories/cat-rice.png",
-  Swallow: "/categories/cat-swallow.png",
-  Grill: "/categories/cat-grill.png",
+  Rice: "/categories/cat-rice.webp",
+  Swallow: "/categories/cat-swallow.webp",
+  Grill: "/categories/cat-grill.webp",
 };
 
 export function MenuExplorer({
@@ -71,7 +71,10 @@ export function MenuExplorer({
                 <img
                   src={thumb}
                   alt=""
+                  width={28}
+                  height={28}
                   className="h-7 w-7 rounded-full object-cover ring-1 ring-black/5"
+                  decoding="async"
                 />
               ) : (
                 <span

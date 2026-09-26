@@ -45,6 +45,7 @@ export function MenuItemDetail({
           slug={item.slug}
           imageUrl={item.imageUrl}
           className="h-[38vh] min-h-[220px] w-full"
+          priority
         />
         <Link
           href="/menu"

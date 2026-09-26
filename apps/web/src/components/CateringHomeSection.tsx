@@ -8,6 +8,7 @@ import {
   useState,
   type PointerEvent as ReactPointerEvent,
 } from "react";
+import { AppImage } from "@/components/AppImage";
 
 type PromoAd = {
   id: string;
@@ -29,7 +30,7 @@ const ADS: PromoAd[] = [
     primary: { href: "/catering", label: "Book an event" },
     secondary: { href: "/about", label: "Learn more" },
     tone: "blue",
-    image: "/ads/ad-events.png",
+    image: "/ads/ad-events.webp",
   },
   {
     id: "space",
@@ -39,7 +40,7 @@ const ADS: PromoAd[] = [
     primary: { href: "/event-space", label: "Book the space" },
     secondary: { href: "/about", label: "Learn more" },
     tone: "red",
-    image: "/ads/ad-event-space.png",
+    image: "/ads/ad-event-space.webp",
   },
 ];
 
@@ -146,11 +147,13 @@ function PromoSlide({ ad }: { ad: PromoAd }) {
   const isBlue = ad.tone === "blue";
   return (
     <div className="relative min-h-[240px] overflow-hidden text-white">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <AppImage
         src={ad.image}
         alt=""
-        className="absolute inset-0 h-full w-full object-cover"
+        fill
+        sizes="(max-width: 768px) 100vw, 480px"
+        className="object-cover"
+        priority
       />
       {/* Dark translucent scrim so white copy stays readable on bright photos */}
       <div className="absolute inset-0 bg-black/45" aria-hidden />

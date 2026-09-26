@@ -184,7 +184,10 @@ export function ShareDeliveryButton({ order }: { order: OrderDto }) {
       await navigator.clipboard.writeText(text);
       toast("Delivery details copied");
     } catch {
-      toast("Could not copy — try WhatsApp share");
+      toast({
+        message: "Could not copy — try WhatsApp share",
+        sound: false,
+      });
     }
   }
 

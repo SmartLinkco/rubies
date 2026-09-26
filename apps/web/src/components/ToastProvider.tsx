@@ -11,12 +11,15 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { playSuccessDing } from "@/lib/sound";
 
 export type ToastOptions = {
   message: string;
   href?: string;
   hrefLabel?: string;
   durationMs?: number;
+  /** Soft success chime. Default true; set false for errors / neutral notices. */
+  sound?: boolean;
 };
 
 type ToastItem = ToastOptions & { id: number };
@@ -49,6 +52,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         typeof options === "string" ? { message: options } : options;
       const id = ++idRef.current;
       const durationMs = normalized.durationMs ?? DEFAULT_DURATION_MS;
+      const playSound = normalized.sound !== false;
+
+      if (playSound) playSuccessDing();
 
       setToasts((prev) => [...prev.slice(-2), { ...normalized, id }]);
 

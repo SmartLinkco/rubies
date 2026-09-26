@@ -32,7 +32,7 @@ function AdminCatering() {
       await load();
       toast(`Marked ${status}`);
     } catch (err) {
-      toast(err instanceof ApiRequestError ? err.message : "Update failed");
+      toast({ message: err instanceof ApiRequestError ? err.message : "Update failed", sound: false });
     }
   }
 

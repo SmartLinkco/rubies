@@ -56,7 +56,7 @@ function CateringForm() {
       setDone(true);
       toast(result.message);
     } catch (err) {
-      toast(err instanceof ApiRequestError ? err.message : "Could not send inquiry");
+      toast({ message: err instanceof ApiRequestError ? err.message : "Could not send inquiry", sound: false });
     } finally {
       setBusy(false);
     }

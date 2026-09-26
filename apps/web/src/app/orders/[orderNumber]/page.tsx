@@ -126,11 +126,13 @@ function OrderDetailInner() {
         toast("Payment confirmed");
       })
       .catch((err) => {
-        toast(
-          err instanceof ApiRequestError
-            ? err.message
-            : "Could not confirm payment",
-        );
+        toast({
+          message:
+            err instanceof ApiRequestError
+              ? err.message
+              : "Could not confirm payment",
+          sound: false,
+        });
       })
       .finally(() => setCompleting(false));
   }, [order, search, toast]);
@@ -146,7 +148,7 @@ function OrderDetailInner() {
           quantity: item.quantity,
         }));
       if (!items.length) {
-        toast("Items are no longer available");
+        toast({ message: "Items are no longer available", sound: false });
         return;
       }
       const cart = await clientApi.replaceCart(items);
@@ -154,7 +156,7 @@ function OrderDetailInner() {
       toast("Items added to cart");
       router.push("/cart");
     } catch (err) {
-      toast(err instanceof ApiRequestError ? err.message : "Could not reorder");
+      toast({ message: err instanceof ApiRequestError ? err.message : "Could not reorder", sound: false });
     } finally {
       setReordering(false);
     }
@@ -171,7 +173,7 @@ function OrderDetailInner() {
       await refresh();
       toast("Thanks for your review");
     } catch (err) {
-      toast(err instanceof ApiRequestError ? err.message : "Could not save review");
+      toast({ message: err instanceof ApiRequestError ? err.message : "Could not save review", sound: false });
     } finally {
       setReviewBusy(false);
     }

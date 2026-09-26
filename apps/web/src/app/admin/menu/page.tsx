@@ -90,7 +90,7 @@ function AdminMenu() {
       setShowForm(false);
       await load();
     } catch (err) {
-      toast(err instanceof ApiRequestError ? err.message : "Save failed");
+      toast({ message: err instanceof ApiRequestError ? err.message : "Save failed", sound: false });
     } finally {
       setBusy(false);
     }
@@ -102,7 +102,7 @@ function AdminMenu() {
       await load();
       toast(item.available ? "Marked unavailable" : "Marked available");
     } catch (err) {
-      toast(err instanceof ApiRequestError ? err.message : "Update failed");
+      toast({ message: err instanceof ApiRequestError ? err.message : "Update failed", sound: false });
     }
   }
 
@@ -113,22 +113,22 @@ function AdminMenu() {
       await load();
       toast("Dish removed");
     } catch (err) {
-      toast(err instanceof ApiRequestError ? err.message : "Remove failed");
+      toast({ message: err instanceof ApiRequestError ? err.message : "Remove failed", sound: false });
     }
   }
 
   async function onPickImage(file: File | null) {
     if (!file) return;
     if (!storageReady) {
-      toast("Neon storage not configured yet");
+      toast({ message: "Neon storage not configured yet", sound: false });
       return;
     }
     if (!file.type.startsWith("image/")) {
-      toast("Choose an image file");
+      toast({ message: "Choose an image file", sound: false });
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast("Keep images under 5 MB");
+      toast({ message: "Keep images under 5 MB", sound: false });
       return;
     }
 
@@ -150,7 +150,7 @@ function AdminMenu() {
       setPreviewUrl(presign.displayUrl || presign.publicUrl);
       toast("Image uploaded");
     } catch (err) {
-      toast(err instanceof ApiRequestError ? err.message : "Upload failed");
+      toast({ message: err instanceof ApiRequestError ? err.message : "Upload failed", sound: false });
     } finally {
       setUploading(false);
     }

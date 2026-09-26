@@ -1,3 +1,4 @@
+import { AppImage } from "@/components/AppImage";
 import { getDishVisual } from "@/lib/dish";
 
 export function DishVisual({
@@ -5,23 +6,29 @@ export function DishVisual({
   imageUrl,
   className = "",
   compact = false,
+  priority = false,
 }: {
   slug: string;
   imageUrl?: string | null;
   className?: string;
   compact?: boolean;
+  priority?: boolean;
 }) {
   const visual = getDishVisual(slug);
+  const sizes = compact
+    ? "(max-width: 768px) 40vw, 160px"
+    : "(max-width: 768px) 100vw, 480px";
 
   if (imageUrl) {
     return (
       <div className={`relative overflow-hidden bg-cream-deep ${className}`}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <AppImage
           src={imageUrl}
           alt=""
-          className="h-full w-full object-cover"
-          loading="lazy"
+          fill
+          sizes={sizes}
+          priority={priority}
+          className="object-cover"
         />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/45 to-transparent p-3 pt-10">
           <span

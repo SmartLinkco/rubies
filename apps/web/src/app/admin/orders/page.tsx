@@ -156,7 +156,7 @@ function AdminOrders() {
       await load();
       toast(`${order.orderNumber} → ${STATUS_LABEL[next]}`);
     } catch (err) {
-      toast(err instanceof ApiRequestError ? err.message : "Update failed");
+      toast({ message: err instanceof ApiRequestError ? err.message : "Update failed", sound: false });
     } finally {
       setBusyId(null);
     }
@@ -172,7 +172,7 @@ function AdminOrders() {
       await load();
       toast(`${order.orderNumber} cancelled`);
     } catch (err) {
-      toast(err instanceof ApiRequestError ? err.message : "Cancel failed");
+      toast({ message: err instanceof ApiRequestError ? err.message : "Cancel failed", sound: false });
     } finally {
       setBusyId(null);
     }
@@ -185,7 +185,7 @@ function AdminOrders() {
       await load();
       toast(`${order.orderNumber} marked paid`);
     } catch (err) {
-      toast(err instanceof ApiRequestError ? err.message : "Mark paid failed");
+      toast({ message: err instanceof ApiRequestError ? err.message : "Mark paid failed", sound: false });
     } finally {
       setBusyId(null);
     }
