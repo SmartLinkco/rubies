@@ -109,7 +109,15 @@ export function ProfilePanel({
           </h2>
           <p className="mt-1 text-sm text-white/85">{displayPhone}</p>
 
-          {!user ? (
+          {user ? (
+            <button
+              type="button"
+              onClick={() => void logout()}
+              className="mt-3 rounded-full bg-white/15 px-5 py-2 text-sm font-semibold text-white ring-1 ring-white/40"
+            >
+              Sign out
+            </button>
+          ) : (
             <div className="mt-4 flex gap-2">
               <Link
                 href="/login"
@@ -124,7 +132,7 @@ export function ProfilePanel({
                 Register
               </Link>
             </div>
-          ) : null}
+          )}
         </div>
       </div>
 
@@ -157,18 +165,6 @@ export function ProfilePanel({
             ))}
           </ul>
         </div>
-
-        {user ? (
-          <div className="px-4">
-            <button
-              type="button"
-              onClick={() => void logout()}
-              className="mt-4 w-full rounded-full bg-ink/90 px-4 py-3.5 text-sm font-semibold text-white"
-            >
-              Sign out
-            </button>
-          </div>
-        ) : null}
 
         <p className="mt-5 px-4 text-center text-xs text-muted">
           {restaurantName} · Closed Wednesdays

@@ -76,17 +76,10 @@ function AdminSettings() {
   return (
     <form onSubmit={(e) => void save(e)} className="space-y-5 pb-6">
       <Section title="Ordering status">
-        <p
-          className={`rounded-[14px] px-3 py-2 text-sm ${
-            settings.isAcceptingOrders
-              ? "bg-emerald-50 text-emerald-900"
-              : "bg-amber-50 text-amber-950"
-          }`}
-        >
-          {settings.isAcceptingOrders
-            ? "Currently accepting orders"
-            : settings.closedReason ?? "Closed"}
-        </p>
+        <OrderingStatusNotice
+          open={settings.isAcceptingOrders}
+          closedReason={settings.closedReason}
+        />
         <Toggle
           label="Force closed"
           checked={settings.forceClosed}
@@ -288,6 +281,54 @@ function AdminSettings() {
         {busy ? "Saving…" : "Save settings"}
       </button>
     </form>
+  );
+}
+
+function OrderingStatusNotice({
+  open,
+  closedReason,
+}: {
+  open: boolean;
+  closedReason: string | null | undefined;
+}) {
+  return (
+    <div
+      className={`relative overflow-hidden rounded-[16px] px-3.5 py-3.5 ${
+        open
+          ? "bg-gradient-to-br from-ink via-[#243056] to-rubies-blue text-white"
+          : "bg-gradient-to-br from-[#5c3a1a] via-[#8a5a22] to-amber-700 text-white"
+      }`}
+    >
+      <div
+        className="pointer-events-none absolute -right-6 -top-8 h-24 w-24 rounded-full bg-white/10"
+        aria-hidden
+      />
+      <div className="relative flex items-start gap-3">
+        <span className="relative mt-1.5 flex h-2.5 w-2.5 shrink-0">
+          {open ? (
+            <span className="absolute inset-0 animate-ping rounded-full bg-emerald-300/70" />
+          ) : null}
+          <span
+            className={`relative h-2.5 w-2.5 rounded-full ring-2 ring-white/25 ${
+              open ? "bg-emerald-400" : "bg-amber-200"
+            }`}
+          />
+        </span>
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/60">
+            Live status
+          </p>
+          <p className="mt-0.5 text-[15px] font-semibold leading-snug">
+            {open ? "Open for orders" : "Not accepting orders"}
+          </p>
+          <p className="mt-1 text-[12px] leading-snug text-white/70">
+            {open
+              ? "Customers can place COD and pay-now orders."
+              : closedReason ?? "Ordering is paused."}
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
 
