@@ -56,4 +56,5 @@ See `docs/IMPLEMENTATION_PLAN.md`.
 
 - **Phase 0** — done (Neon + scaffold + seed)
 - **Phase 1** — done (splash/onboarding, discovery, menu detail, local cart + Call/WhatsApp)
-- **Next:** Phase 2 — auth & profile
+- **Phase 2** — done (email/password auth, guest cart cookie, profile + addresses)
+- **Next:** Phase 3 — checkout + Paystack/COD

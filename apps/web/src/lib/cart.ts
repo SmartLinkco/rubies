@@ -1,6 +1,8 @@
 "use client";
 
+import type { CartDto } from "@rubies/shared";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { clientApi } from "@/lib/client-api";
 
 export type CartLine = {
   id: string;
@@ -42,10 +44,12 @@ function readCart(): CartLine[] {
   return cachedCart;
 }
 
-function writeCart(lines: CartLine[]) {
+function writeCart(lines: CartLine[], { persistLocal = true } = {}) {
   cachedCart = lines.length > 0 ? lines : EMPTY_CART;
   hasLoaded = true;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(cachedCart));
+  if (persistLocal) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cachedCart));
+  }
   emit();
 }
 
@@ -70,6 +74,33 @@ function getServerSnapshot() {
   return EMPTY_CART;
 }
 
+function fromServerCart(cart: CartDto): CartLine[] {
+  if (!cart.items.length) return EMPTY_CART;
+  return cart.items.map((item) => ({
+    id: item.menuItemId,
+    slug: item.slug,
+    name: item.name,
+    priceGhs: item.priceGhs,
+    quantity: item.quantity,
+  }));
+}
+
+export function applyServerCart(cart: CartDto) {
+  writeCart(fromServerCart(cart));
+}
+
+export async function pushLocalCartToServer() {
+  ensureLoaded();
+  const local = readCart();
+  // Replace (not merge) so repeated hydrate/checkout pushes do not inflate qty
+  return clientApi.replaceCart(
+    local.map((line) => ({
+      menuItemId: line.id,
+      quantity: line.quantity,
+    })),
+  );
+}
+
 export function useCart() {
   const lines = useSyncExternalStore(subscribe, readCart, getServerSnapshot);
 
@@ -80,36 +111,56 @@ export function useCart() {
   );
 
   const addItem = useCallback(
-    (item: Omit<CartLine, "quantity">, quantity = 1) => {
+    async (item: Omit<CartLine, "quantity">, quantity = 1) => {
       const current = readCart();
       const existing = current.find((line) => line.id === item.id);
-      if (existing) {
-        writeCart(
-          current.map((line) =>
-            line.id === item.id
-              ? { ...line, quantity: line.quantity + quantity }
-              : line,
-          ),
-        );
-      } else {
-        writeCart([...current, { ...item, quantity }]);
+      const nextQty = (existing?.quantity ?? 0) + quantity;
+      const optimistic = existing
+        ? current.map((line) =>
+            line.id === item.id ? { ...line, quantity: nextQty } : line,
+          )
+        : [...current, { ...item, quantity }];
+      writeCart(optimistic);
+
+      try {
+        const cart = await clientApi.putCartItem(item.id, nextQty);
+        applyServerCart(cart);
+      } catch {
+        /* keep optimistic local cart if API unavailable */
       }
     },
     [],
   );
 
-  const setQuantity = useCallback((id: string, quantity: number) => {
+  const setQuantity = useCallback(async (id: string, quantity: number) => {
     const current = readCart();
-    if (quantity <= 0) {
-      writeCart(current.filter((line) => line.id !== id));
-      return;
+    const optimistic =
+      quantity <= 0
+        ? current.filter((line) => line.id !== id)
+        : current.map((line) => (line.id === id ? { ...line, quantity } : line));
+    writeCart(optimistic);
+
+    try {
+      const cart = await clientApi.putCartItem(id, Math.max(0, quantity));
+      applyServerCart(cart);
+    } catch {
+      /* keep optimistic */
     }
-    writeCart(
-      current.map((line) => (line.id === id ? { ...line, quantity } : line)),
-    );
   }, []);
 
-  const clear = useCallback(() => writeCart([]), []);
+  const clear = useCallback(async () => {
+    const current = readCart();
+    writeCart([]);
+    try {
+      await Promise.all(
+        current.map((line) => clientApi.putCartItem(line.id, 0)),
+      );
+      const cart = await clientApi.getCart();
+      applyServerCart(cart);
+    } catch {
+      /* keep cleared local */
+    }
+  }, []);
 
   return { lines, count, subtotal, addItem, setQuantity, clear };
 }

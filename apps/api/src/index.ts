@@ -1,9 +1,19 @@
 import "dotenv/config";
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import { errorHandler, notFound } from "./middleware/error.js";
+import { attachSession } from "./middleware/session.js";
+import { authRouter } from "./routes/auth.js";
+import { cartRouter } from "./routes/cart.js";
 import { healthRouter } from "./routes/health.js";
+import { meRouter } from "./routes/me.js";
 import { menuRouter } from "./routes/menu.js";
+import { ordersRouter } from "./routes/orders.js";
+import {
+  paymentsRouter,
+  paystackWebhookHandler,
+} from "./routes/payments.js";
 import { restaurantRouter } from "./routes/restaurant.js";
 
 const app = express();
@@ -16,15 +26,29 @@ app.use(
     credentials: true,
   }),
 );
+
+app.post(
+  "/payments/paystack/webhook",
+  express.raw({ type: "application/json" }),
+  paystackWebhookHandler,
+);
+
 app.use(express.json());
+app.use(cookieParser());
+app.use(attachSession);
 
 app.get("/", (_req, res) => {
-  res.json({ data: { name: "Rubies Cuisine API", version: "0.1.0" } });
+  res.json({ data: { name: "Rubies Cuisine API", version: "0.3.0" } });
 });
 
 app.use("/health", healthRouter);
 app.use("/menu", menuRouter);
 app.use("/restaurant", restaurantRouter);
+app.use("/auth", authRouter);
+app.use("/me", meRouter);
+app.use("/cart", cartRouter);
+app.use("/orders", ordersRouter);
+app.use("/payments", paymentsRouter);
 
 app.use(notFound);
 app.use(errorHandler);

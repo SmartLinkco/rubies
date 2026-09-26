@@ -3,6 +3,7 @@
 import type { MenuItemDto } from "@rubies/shared";
 import { useState } from "react";
 import { useCart } from "@/lib/cart";
+import { useToast } from "@/components/ToastProvider";
 
 export function AddToCartButton({
   item,
@@ -14,6 +15,7 @@ export function AddToCartButton({
   disabledReason?: string | null;
 }) {
   const { addItem } = useCart();
+  const { toast } = useToast();
   const [pulse, setPulse] = useState(false);
 
   if (disabled) {
@@ -37,7 +39,7 @@ export function AddToCartButton({
     <button
       type="button"
       onClick={() => {
-        addItem({
+        void addItem({
           id: item.id,
           slug: item.slug,
           name: item.name,
@@ -45,12 +47,17 @@ export function AddToCartButton({
         });
         setPulse(true);
         window.setTimeout(() => setPulse(false), 700);
+        toast({
+          message: `${item.name} added to cart`,
+          href: "/cart",
+          hrefLabel: "View",
+        });
       }}
       className={`w-full rounded-full bg-rubies-red px-6 py-3.5 text-sm font-semibold text-white shadow-soft transition hover:bg-rubies-red-deep active:scale-[0.98] ${
         pulse ? "animate-pulse-once" : ""
       }`}
     >
-      {pulse ? "Added to cart" : "Add to cart · local"}
+      {pulse ? "Added to cart" : "Add to cart"}
     </button>
   );
 }

@@ -10,7 +10,9 @@ Saved for planning and implementation. Do not treat Foodora visuals as brand; us
 | `02-foodora-app-map.jpg` | Foodora app map (IA / screen hierarchy) |
 | `03-foodora-user-flow.jpg` | Foodora user flows (onboarding → explore / cart / tracking / offers / profile / orders) |
 | `04-foodora-screen-set.jpg` | Broader Foodora screen set (discovery → checkout → profile) |
-| `05-rubies-cuisine-flyer.jpg` | **Rubies Cuisine brand flyer** (source of truth for brand + business facts) |
+| `06-home-hero-inspiration.png` | Home delivery hero card reference (Foodora-style; Rubies colors in product) |
+| `07-profile-inspiration.png` | Profile screen reference (header + settings list) |
+| `08-delivery-rider.png` | Generated courier illustration for home hero card |
 
 ## Brand facts (from flyer)
 

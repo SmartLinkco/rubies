@@ -40,18 +40,43 @@ enum PaymentStatus {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  email        String?   @unique
-  phone        String?   @unique
-  passwordHash String?
-  name         String?
-  role         UserRole  @default(customer)
-  isGuest      Boolean   @default(false)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  addresses    Address[]
-  orders       Order[]
-  reviews      Review[]
+  id                String           @id @default(cuid())
+  email             String?          @unique
+  phone             String?          @unique
+  passwordHash      String?
+  name              String?
+  role              UserRole         @default(customer)
+  isGuest           Boolean          @default(false)
+  preferredPayment  PaymentMethod    @default(cod)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  addresses         Address[]
+  orders            Order[]
+  reviews           Review[]
+  cart              Cart?
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  guestId   String?    @unique
+  userId    String?    @unique
+  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  updatedAt DateTime   @updatedAt
+  createdAt DateTime   @default(now())
+  items     CartItem[]
+}
+
+model CartItem {
+  id           String   @id @default(cuid())
+  cartId       String
+  cart         Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  menuItemId   String
+  menuItem     MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  quantity     Int      @default(1)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([cartId, menuItemId])
 }
 
 model Address {
@@ -83,6 +108,7 @@ model MenuItem {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   orderItems  OrderItem[]
+  cartItems   CartItem[]
 }
 
 model RestaurantSettings {

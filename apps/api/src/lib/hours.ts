@@ -39,7 +39,7 @@ export function evaluateAcceptingOrders(
   if (settings.forceClosed) {
     return {
       isAcceptingOrders: false,
-      closedReason: "Temporarily closed — check back soon.",
+      closedReason: "Temporarily closed. Check back soon.",
       nextOpenLabel: nextOpenDayLabel(settings.closedWeekdays, now),
     };
   }
@@ -49,7 +49,7 @@ export function evaluateAcceptingOrders(
     const dayName = WEEKDAY_NAMES[weekday] ?? "today";
     return {
       isAcceptingOrders: false,
-      closedReason: `Closed ${dayName}s — order again ${nextOpenDayLabel(settings.closedWeekdays, now)}.`,
+      closedReason: `Closed ${dayName}s. Order again ${nextOpenDayLabel(settings.closedWeekdays, now)}.`,
       nextOpenLabel: nextOpenDayLabel(settings.closedWeekdays, now),
     };
   }

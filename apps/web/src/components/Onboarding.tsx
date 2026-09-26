@@ -7,7 +7,7 @@ const STORAGE_KEY = "rubies_onboarded_v1";
 const slides = [
   {
     title: "Home-cooked Ghanaian meals",
-    body: "Jollof, fufu, banku, and grilled chicken — prepared fresh in Amamorley.",
+    body: "Jollof, fufu, banku, and grilled chicken, prepared fresh in Amamorley.",
     tone: "from-[#e10600]/90 to-[#1b3a9c]/90",
   },
   {
@@ -17,7 +17,7 @@ const slides = [
   },
   {
     title: "Closed Wednesdays",
-    body: "Browse anytime. Ordering pauses on Wednesdays — we open again Thursday.",
+    body: "Browse anytime. Ordering pauses on Wednesdays. We open again Thursday.",
     tone: "from-[#b80500]/90 to-[#2f4fb8]/85",
   },
 ] as const;

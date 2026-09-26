@@ -76,3 +76,106 @@ export interface ApiErrorBody {
 export interface ApiSuccess<T> {
   data: T;
 }
+
+export interface UserDto {
+  id: string;
+  email: string | null;
+  phone: string | null;
+  name: string | null;
+  role: "customer" | "admin";
+  preferredPayment: PaymentMethod;
+}
+
+export interface AddressDto {
+  id: string;
+  label: string;
+  line1: string;
+  landmark: string | null;
+  city: string;
+  lat: number | null;
+  lng: number | null;
+  isDefault: boolean;
+}
+
+export interface CartLineDto {
+  id: string;
+  menuItemId: string;
+  slug: string;
+  name: string;
+  priceGhs: number;
+  quantity: number;
+}
+
+export interface CartDto {
+  id: string;
+  items: CartLineDto[];
+  subtotalGhs: number;
+}
+
+export interface OrderItemDto {
+  id: string;
+  menuItemId: string | null;
+  name: string;
+  unitPriceGhs: number;
+  quantity: number;
+}
+
+export interface OrderStatusEventDto {
+  id: string;
+  status: OrderStatus;
+  note: string | null;
+  createdAt: string;
+}
+
+export interface OrderDto {
+  id: string;
+  orderNumber: string;
+  status: OrderStatus;
+  paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
+  subtotalGhs: number;
+  deliveryFeeGhs: number;
+  discountGhs: number;
+  totalGhs: number;
+  deliveryLine1: string;
+  deliveryLandmark: string | null;
+  deliveryCity: string;
+  guestName: string | null;
+  guestPhone: string | null;
+  notes: string | null;
+  createdAt: string;
+  items: OrderItemDto[];
+  statusEvents: OrderStatusEventDto[];
+  paystackAuthorizationUrl?: string | null;
+}
+
+export interface DeliveryQuoteDto {
+  mode: DeliveryFeeMode;
+  deliveryFeeGhs: number;
+  distanceKm: number | null;
+  withinRange: boolean;
+  maxDeliveryKm: number | null;
+  message: string | null;
+}
+
+export interface PlaceOrderInput {
+  paymentMethod: PaymentMethod;
+  addressId?: string;
+  delivery?: {
+    line1: string;
+    landmark?: string | null;
+    city?: string;
+    lat?: number | null;
+    lng?: number | null;
+  };
+  guestName?: string;
+  guestPhone?: string;
+  notes?: string | null;
+  promoCode?: string | null;
+}
+
+export interface PlaceOrderResult {
+  order: OrderDto;
+  authorizationUrl: string | null;
+}
+

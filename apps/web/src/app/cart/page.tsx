@@ -2,8 +2,7 @@
 
 import { brand } from "@rubies/shared";
 import Link from "next/link";
-import { BottomNav } from "@/components/BottomNav";
-import { Onboarding } from "@/components/Onboarding";
+import { AppShell } from "@/components/AppShell";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
 import { useCart, useHasMounted } from "@/lib/cart";
 import { formatGhs } from "@/lib/format";
@@ -21,24 +20,34 @@ export default function CartPage() {
   );
 
   return (
-    <>
-      <Onboarding />
-      <div className="mx-auto min-h-dvh max-w-md px-4 pb-28 pt-6">
+    <AppShell
+      restaurant={{
+        name: brand.name,
+        tagline: brand.tagline,
+        phones: [...brand.phones],
+        whatsapp: brand.whatsapp,
+        address: brand.address,
+      }}
+      title="Cart"
+      tagline="Review your items"
+    >
+      <div className="px-4">
         <div className="flex items-center justify-between">
-          <h1 className="font-display text-3xl font-bold text-ink">Cart</h1>
+          <p className="text-sm text-muted">
+            {mounted && lines.length > 0
+              ? `${lines.reduce((n, l) => n + l.quantity, 0)} items`
+              : "Add dishes from the menu"}
+          </p>
           {mounted && lines.length > 0 ? (
             <button
               type="button"
-              onClick={clear}
-              className="text-sm font-medium text-muted"
+              onClick={() => void clear()}
+              className="shrink-0 text-sm font-medium text-muted"
             >
               Clear
             </button>
           ) : null}
         </div>
-        <p className="mt-2 text-sm text-muted">
-          Local cart for now — checkout arrives in Phase 3. Finish via Call or WhatsApp.
-        </p>
 
         {!mounted ? (
           <div className="mt-8 rounded-card bg-white/80 px-4 py-10 text-center text-sm text-muted shadow-soft">
@@ -70,14 +79,14 @@ export default function CartPage() {
                       {line.name}
                     </Link>
                     <p className="mt-1 text-sm text-rubies-blue">
-                      {formatGhs(line.priceGhs)}
+                      {formatGhs(line.priceGhs * line.quantity)}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 rounded-full bg-cream-deep px-2 py-1">
                     <button
                       type="button"
                       className="h-8 w-8 rounded-full text-lg font-medium text-ink"
-                      onClick={() => setQuantity(line.id, line.quantity - 1)}
+                      onClick={() => void setQuantity(line.id, line.quantity - 1)}
                     >
                       −
                     </button>
@@ -87,7 +96,7 @@ export default function CartPage() {
                     <button
                       type="button"
                       className="h-8 w-8 rounded-full text-lg font-medium text-ink"
-                      onClick={() => setQuantity(line.id, line.quantity + 1)}
+                      onClick={() => void setQuantity(line.id, line.quantity + 1)}
                     >
                       +
                     </button>
@@ -102,22 +111,42 @@ export default function CartPage() {
                 <span className="font-semibold text-ink">{formatGhs(subtotal)}</span>
               </div>
               <p className="mt-2 text-xs text-muted">
-                Delivery fee calculated at checkout (Phase 3).
+                Delivery fee calculated at checkout.
               </p>
             </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-3">
+            <div className="mt-4">
+              <label className="block text-xs font-medium text-muted" htmlFor="promo">
+                Promo code
+              </label>
+              <input
+                id="promo"
+                type="text"
+                disabled
+                placeholder="Coming soon"
+                className="mt-1.5 w-full rounded-full border border-black/10 bg-white/70 px-4 py-2.5 text-sm text-muted"
+              />
+            </div>
+
+            <Link
+              href="/checkout"
+              className="mt-5 flex w-full items-center justify-center rounded-full bg-rubies-red px-4 py-3.5 text-sm font-semibold text-white shadow-soft transition hover:bg-rubies-red-deep"
+            >
+              Proceed to checkout
+            </Link>
+
+            <div className="mt-3 grid grid-cols-2 gap-3">
               <a
                 href={`tel:${phone}`}
-                className="rounded-full bg-rubies-red px-4 py-3.5 text-center text-sm font-semibold text-white"
+                className="rounded-full bg-white px-4 py-3 text-center text-sm font-semibold text-ink ring-1 ring-black/10"
               >
-                Call to order
+                Call instead
               </a>
               <a
                 href={`https://wa.me/${whatsapp}?text=${message}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-3.5 text-center text-sm font-semibold text-white transition hover:bg-[#1ebe57]"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#1ebe57]"
               >
                 <WhatsAppIcon className="h-4 w-4" />
                 WhatsApp
@@ -126,7 +155,6 @@ export default function CartPage() {
           </>
         )}
       </div>
-      <BottomNav phone={phone} whatsapp={whatsapp} />
-    </>
+    </AppShell>
   );
 }

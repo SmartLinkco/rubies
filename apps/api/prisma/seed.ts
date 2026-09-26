@@ -1,4 +1,5 @@
 import "dotenv/config";
+import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -7,7 +8,7 @@ const menu = [
   {
     name: "Jollof Rice",
     slug: "jollof-rice",
-    description: "Classic Ghanaian jollof with sides — hearty and ready for delivery.",
+    description: "Classic Ghanaian jollof with sides, hearty and ready for delivery.",
     category: "Rice",
     sortOrder: 1,
   },
@@ -21,7 +22,7 @@ const menu = [
   {
     name: "Banku and Soup",
     slug: "banku-and-soup",
-    description: "Fresh banku with savory soup — a local favourite.",
+    description: "Fresh banku with savory soup, a local favourite.",
     category: "Swallow",
     sortOrder: 3,
   },
@@ -81,6 +82,9 @@ async function main() {
   }
 
   const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "admin@rubiescuisine.local";
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? "changeme123";
+  const passwordHash = await bcrypt.hash(adminPassword, 10);
+
   await prisma.user.upsert({
     where: { email: adminEmail },
     create: {
@@ -88,16 +92,17 @@ async function main() {
       name: "Rubies Admin",
       role: "admin",
       isGuest: false,
-      // Password hashing lands in Phase 2 — placeholder hash of "changeme"
-      passwordHash: "$pending$",
+      passwordHash,
     },
     update: {
       role: "admin",
+      passwordHash,
     },
   });
 
-  console.log("Seed complete: restaurant settings, 4 menu items @ GHS 45, admin user");
-}
+  console.log(
+    `Seed complete: restaurant settings, 4 menu items @ GHS 45, admin ${adminEmail}`,
+  );}
 
 main()
   .catch((e) => {

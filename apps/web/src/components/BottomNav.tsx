@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { useCart, useHasMounted } from "@/lib/cart";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
 
 const tabs = [
@@ -21,18 +20,12 @@ export function BottomNav({
   whatsapp: string;
 }) {
   const pathname = usePathname();
-  const { count } = useCart();
-  const mounted = useHasMounted();
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-black/5 bg-cream/95 backdrop-blur-md">
       <div className="relative mx-auto flex max-w-md items-end justify-between px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2">
         {tabs.slice(0, 2).map((tab) => (
-          <NavTab
-            key={tab.href}
-            {...tab}
-            active={pathname === tab.href}
-          />
+          <NavTab key={tab.href} {...tab} active={pathname === tab.href} />
         ))}
 
         <div className="relative -mt-7 flex w-[4.5rem] justify-center">
@@ -63,14 +56,6 @@ export function BottomNav({
             active={pathname === tab.href || pathname.startsWith(`${tab.href}/`)}
           />
         ))}
-
-        <Link
-          href="/cart"
-          className="absolute -top-3 right-4 flex h-8 min-w-8 items-center justify-center rounded-full bg-ink px-2 text-xs font-semibold text-white shadow-soft"
-          aria-label="Open cart"
-        >
-          {mounted ? count : 0}
-        </Link>
       </div>
     </nav>
   );
@@ -103,7 +88,12 @@ function NavTab({
 function HomeIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+      <path
+        d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -111,7 +101,12 @@ function HomeIcon() {
 function MenuIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path
+        d="M4 7h16M4 12h16M4 17h10"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -119,8 +114,18 @@ function MenuIcon() {
 function OrdersIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M7 4h10l1 16H6L7 4Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
-      <path d="M9 8h6M9 12h6M9 16h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path
+        d="M7 4h10l1 16H6L7 4Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9 8h6M9 12h6M9 16h4"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -129,7 +134,12 @@ function ProfileIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
       <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M5 19.5c1.8-3.2 4.2-4.5 7-4.5s5.2 1.3 7 4.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path
+        d="M5 19.5c1.8-3.2 4.2-4.5 7-4.5s5.2 1.3 7 4.5"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }

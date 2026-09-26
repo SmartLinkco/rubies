@@ -1,18 +1,18 @@
 "use client";
 
 import type { MenuItemDto } from "@rubies/shared";
-import Link from "next/link";
 import { useMemo, useState } from "react";
-import { DishVisual } from "@/components/DishVisual";
+import { MenuItemCard } from "@/components/MenuItemCard";
 import { categoryForSlug } from "@/lib/dish";
-import { formatGhs } from "@/lib/format";
 
 export function MenuExplorer({
   items,
   mode = "grid",
+  canOrder = true,
 }: {
   items: MenuItemDto[];
   mode?: "grid" | "list";
+  canOrder?: boolean;
 }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
@@ -68,49 +68,20 @@ export function MenuExplorer({
       {mode === "grid" ? (
         <div className="mt-5 grid grid-cols-2 gap-3">
           {filtered.map((item, i) => (
-            <Link
+            <MenuItemCard
               key={item.id}
-              href={`/menu/${item.slug}`}
-              className="group animate-rise overflow-hidden rounded-card bg-white/85 shadow-soft ring-1 ring-black/[0.04]"
+              item={item}
+              canOrder={canOrder}
+              layout="grid"
               style={{ animationDelay: `${i * 60}ms` }}
-            >
-              <DishVisual slug={item.slug} className="aspect-[4/3]" compact />
-              <div className="p-3">
-                <h3 className="line-clamp-1 text-sm font-semibold text-ink group-hover:text-rubies-red">
-                  {item.name}
-                </h3>
-                <p className="mt-1 text-sm font-semibold text-rubies-blue">
-                  {formatGhs(item.priceGhs)}
-                </p>
-              </div>
-            </Link>
+            />
           ))}
         </div>
       ) : (
         <ul className="mt-5 space-y-3">
           {filtered.map((item, i) => (
             <li key={item.id} className="animate-rise" style={{ animationDelay: `${i * 50}ms` }}>
-              <Link
-                href={`/menu/${item.slug}`}
-                className="flex gap-3 overflow-hidden rounded-card bg-white/85 p-3 shadow-soft ring-1 ring-black/[0.04]"
-              >
-                <DishVisual
-                  slug={item.slug}
-                  className="h-20 w-20 shrink-0 rounded-soft"
-                  compact
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-semibold text-ink">{item.name}</h3>
-                    <span className="shrink-0 text-sm font-semibold text-rubies-blue">
-                      {formatGhs(item.priceGhs)}
-                    </span>
-                  </div>
-                  <p className="mt-1 line-clamp-2 text-sm text-muted">
-                    {item.description}
-                  </p>
-                </div>
-              </Link>
+              <MenuItemCard item={item} canOrder={canOrder} layout="list" />
             </li>
           ))}
         </ul>

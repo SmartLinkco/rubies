@@ -10,7 +10,7 @@ export function ClosedBanner({ restaurant }: { restaurant: RestaurantPublicDto }
       <div className="animate-rise rounded-card bg-rubies-blue/10 px-4 py-3 text-sm text-rubies-blue ring-1 ring-rubies-blue/15">
         <p className="font-semibold">Last orders today</p>
         <p className="mt-1 text-rubies-blue/80">
-          We&apos;re closed Wednesdays — order now before tomorrow&apos;s pause.
+          We&apos;re closed Wednesdays. Order now before tomorrow&apos;s pause.
         </p>
       </div>
     );

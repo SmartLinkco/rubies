@@ -6,16 +6,13 @@ export const dynamic = "force-dynamic";
 
 export default async function MenuPage() {
   const [restaurant, menu] = await Promise.all([getRestaurant(), getMenu()]);
+  const accepting = restaurant?.isAcceptingOrders ?? true;
 
   return (
-    <AppShell restaurant={restaurant}>
-      <div className="px-4 pt-6">
-        <h1 className="font-display animate-rise text-3xl font-bold text-ink">Menu</h1>
-        <p className="mt-2 text-sm text-muted">
-          Four favourites to start — every dish GHS 45.
-        </p>
-        <div className="mt-6">
-          <MenuExplorer items={menu ?? []} mode="list" />
+    <AppShell restaurant={restaurant} title="Menu" tagline="Every dish GHS 45">
+      <div className="px-4">
+        <div className="mt-2">
+          <MenuExplorer items={menu ?? []} mode="list" canOrder={accepting} />
         </div>
       </div>
     </AppShell>
