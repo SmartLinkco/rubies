@@ -20,6 +20,17 @@ import type {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
+/** Browser calls go through the Next rewrite so cookies stay same-origin. */
+function clientApiBase() {
+  if (process.env.NEXT_PUBLIC_API_BROWSER_URL) {
+    return process.env.NEXT_PUBLIC_API_BROWSER_URL.replace(/\/$/, "");
+  }
+  if (typeof window !== "undefined") {
+    return "/api-proxy";
+  }
+  return API_URL.replace(/\/$/, "");
+}
+
 export class ApiRequestError extends Error {
   status: number;
   code: string;
@@ -32,7 +43,7 @@ export class ApiRequestError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(`${clientApiBase()}${path}`, {
     ...init,
     credentials: "include",
     headers: {

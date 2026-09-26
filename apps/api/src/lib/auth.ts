@@ -26,11 +26,15 @@ function secretKey() {
 }
 
 export function cookieBase(): CookieOptions {
-  const secure = process.env.NODE_ENV === "production";
+  // Cross-origin browser → API (e.g. Vercel → Render) needs SameSite=None; Secure.
+  // Same-origin proxy (/api-proxy) works with Lax too; None remains safe on HTTPS.
+  const crossSite =
+    process.env.COOKIE_SAMESITE === "none" ||
+    process.env.NODE_ENV === "production";
   return {
     httpOnly: true,
-    sameSite: "lax",
-    secure,
+    sameSite: crossSite ? "none" : "lax",
+    secure: crossSite,
     path: "/",
   };
 }
