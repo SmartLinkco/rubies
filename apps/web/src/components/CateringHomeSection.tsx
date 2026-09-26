@@ -152,23 +152,25 @@ function PromoSlide({ ad }: { ad: PromoAd }) {
         alt=""
         className="absolute inset-0 h-full w-full object-cover"
       />
+      {/* Dark translucent scrim so white copy stays readable on bright photos */}
+      <div className="absolute inset-0 bg-black/45" aria-hidden />
       <div
         className={`absolute inset-0 ${
           isBlue
-            ? "bg-gradient-to-r from-rubies-blue/92 via-rubies-blue/78 to-rubies-blue/35"
-            : "bg-gradient-to-r from-rubies-red/92 via-rubies-red/78 to-rubies-red/35"
+            ? "bg-gradient-to-r from-rubies-blue/88 via-rubies-blue/55 to-rubies-blue/25"
+            : "bg-gradient-to-r from-rubies-red/88 via-rubies-red/55 to-rubies-red/25"
         }`}
         aria-hidden
       />
 
       <div className="relative px-5 pb-9 pt-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/75">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/80">
           {ad.eyebrow}
         </p>
-        <h2 className="mt-2 font-display text-[1.55rem] font-bold leading-tight tracking-tight">
+        <h2 className="mt-2 font-display text-[1.55rem] font-bold leading-tight tracking-tight drop-shadow-sm">
           {ad.title}
         </h2>
-        <p className="mt-2 max-w-[21rem] text-sm leading-relaxed text-white/90">
+        <p className="mt-2 max-w-[21rem] text-sm leading-relaxed text-white/95">
           {ad.body}
         </p>
 
