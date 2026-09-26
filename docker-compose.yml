@@ -1,0 +1,18 @@
+# Optional local Postgres via Docker.
+# Primary development DB is Neon — see apps/api/.env.example
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: rubies
+      POSTGRES_PASSWORD: rubies
+      POSTGRES_DB: rubies
+    volumes:
+      - rubies_pg:/var/lib/postgresql/data
+
+volumes:
+  rubies_pg:

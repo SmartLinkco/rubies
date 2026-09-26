@@ -1,0 +1,21 @@
+{
+  "name": "rubies",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "dev:web": "npm run dev -w @rubies/web",
+    "dev:api": "npm run dev -w @rubies/api",
+    "build": "npm run build --workspaces --if-present",
+    "db:generate": "npm run db:generate -w @rubies/api",
+    "db:migrate": "npm run db:migrate -w @rubies/api",
+    "db:seed": "npm run db:seed -w @rubies/api",
+    "db:setup": "npm run db:migrate -w @rubies/api && npm run db:seed -w @rubies/api"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
