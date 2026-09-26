@@ -27,6 +27,7 @@ export function MenuItemCard({
         <Link href={`/menu/${item.slug}`} className="shrink-0">
           <DishVisual
             slug={item.slug}
+            imageUrl={item.imageUrl}
             className="h-20 w-20 rounded-soft"
             compact
           />
@@ -61,6 +62,7 @@ export function MenuItemCard({
       <Link href={`/menu/${item.slug}`} className="block">
         <DishVisual
           slug={item.slug}
+          imageUrl={item.imageUrl}
           className={layout === "rail" ? "h-28" : "aspect-[4/3]"}
           compact
         />

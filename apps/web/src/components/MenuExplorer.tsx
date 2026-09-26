@@ -5,6 +5,12 @@ import { useMemo, useState } from "react";
 import { MenuItemCard } from "@/components/MenuItemCard";
 import { categoryForSlug } from "@/lib/dish";
 
+const CATEGORY_THUMB: Record<string, string> = {
+  Rice: "/categories/cat-rice.png",
+  Swallow: "/categories/cat-swallow.png",
+  Grill: "/categories/cat-grill.png",
+};
+
 export function MenuExplorer({
   items,
   mode = "grid",
@@ -48,17 +54,34 @@ export function MenuExplorer({
       <div className="mt-4 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {categories.map((cat) => {
           const active = cat === category;
+          const thumb = CATEGORY_THUMB[cat];
           return (
             <button
               key={cat}
               type="button"
               onClick={() => setCategory(cat)}
-              className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition ${
+              className={`flex shrink-0 items-center gap-2 rounded-full py-1.5 pl-1.5 pr-3.5 text-sm font-medium transition ${
                 active
                   ? "bg-rubies-red text-white shadow-soft"
                   : "bg-white/80 text-muted ring-1 ring-black/[0.05]"
               }`}
             >
+              {thumb ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={thumb}
+                  alt=""
+                  className="h-7 w-7 rounded-full object-cover ring-1 ring-black/5"
+                />
+              ) : (
+                <span
+                  className={`flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold ${
+                    active ? "bg-white/20 text-white" : "bg-cream-deep text-ink"
+                  }`}
+                >
+                  All
+                </span>
+              )}
               {cat}
             </button>
           );

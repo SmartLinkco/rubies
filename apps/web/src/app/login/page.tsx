@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { AppShell } from "@/components/AppShell";
 import { LoginForm } from "@/components/AuthForms";
 import { getRestaurant } from "@/lib/api";
@@ -11,7 +12,9 @@ export default async function LoginPage() {
     <AppShell restaurant={restaurant} title="Sign in" tagline="Welcome back">
       <div className="px-4">
         <div className="rounded-card bg-white/85 p-5 shadow-soft ring-1 ring-black/[0.04]">
-          <LoginForm />
+          <Suspense fallback={<p className="text-sm text-muted">Loading…</p>}>
+            <LoginForm />
+          </Suspense>
         </div>
       </div>
     </AppShell>

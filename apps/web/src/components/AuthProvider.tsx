@@ -17,7 +17,7 @@ type AuthContextValue = {
   user: UserDto | null;
   loading: boolean;
   refresh: () => Promise<void>;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<UserDto>;
   register: (input: {
     email: string;
     password: string;
@@ -69,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } else {
       applyServerCart(await clientApi.getCart());
     }
+    return data.user;
   }, []);
 
   const register = useCallback(

@@ -20,13 +20,41 @@ export default async function AboutPage() {
   return (
     <AppShell restaurant={restaurant} title="About" tagline={name}>
       <div className="space-y-4 px-4 pb-4">
-        <section className="mt-2 overflow-hidden rounded-card bg-rubies-red p-5 text-white shadow-soft">
-          <p className="font-display text-2xl font-bold">{name}</p>
-          <p className="mt-1 text-sm text-white/85">{tagline}</p>
-          <p className="mt-4 text-sm text-white/90">
-            Daily delivery from Amamorley. We also take event orders, corporate
-            catering, and bulk cooking for families. Closed Wednesdays.
-          </p>
+        <section className="relative mt-2 overflow-hidden rounded-card text-white shadow-soft">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/about/about-kitchen.png"
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div
+            className="absolute inset-0 bg-gradient-to-t from-rubies-red via-rubies-red/85 to-rubies-red/55"
+            aria-hidden
+          />
+          <div className="relative p-5">
+            <p className="font-display text-2xl font-bold">{name}</p>
+            <p className="mt-1 text-sm text-white/85">{tagline}</p>
+            <p className="mt-4 text-sm text-white/90">
+              Daily delivery from Amamorley. We also take event orders, corporate
+              catering, and bulk cooking for families. Closed Wednesdays.
+            </p>
+          </div>
+        </section>
+
+        <section className="overflow-hidden rounded-card bg-white/90 shadow-soft">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/about/about-food.png"
+            alt="Plated Ghanaian dishes from Rubies Cuisine"
+            className="h-40 w-full object-cover"
+          />
+          <div className="p-4">
+            <h2 className="text-sm font-semibold text-ink">Home-cooked plates</h2>
+            <p className="mt-2 text-sm text-muted">
+              Jollof, fufu, banku, and grilled chicken prepared fresh for delivery
+              across Amamorley.
+            </p>
+          </div>
         </section>
 
         <section className="rounded-card bg-white/90 p-4 shadow-soft">

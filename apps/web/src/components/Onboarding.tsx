@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { BrandMark } from "@/components/BrandMark";
 
 const STORAGE_KEY = "rubies_onboarded_v1";
 
@@ -8,17 +9,20 @@ const slides = [
   {
     title: "Home-cooked Ghanaian meals",
     body: "Jollof, fufu, banku, and grilled chicken, prepared fresh in Amamorley.",
-    tone: "from-[#e10600]/90 to-[#1b3a9c]/90",
+    image: "/onboarding/onboard-1.png",
+    tone: "from-[#e10600]/75 via-[#1b3a9c]/45 to-transparent",
   },
   {
     title: "Order your way",
     body: "Build a cart in the app, or call / WhatsApp us directly. Whichever is easier.",
-    tone: "from-[#1b3a9c]/90 to-[#e10600]/80",
+    image: "/onboarding/onboard-2.png",
+    tone: "from-[#1b3a9c]/75 via-[#e10600]/40 to-transparent",
   },
   {
     title: "Closed Wednesdays",
     body: "Browse anytime. Ordering pauses on Wednesdays. We open again Thursday.",
-    tone: "from-[#b80500]/90 to-[#2f4fb8]/85",
+    image: "/onboarding/onboard-3.png",
+    tone: "from-[#b80500]/70 via-[#2f4fb8]/40 to-transparent",
   },
 ] as const;
 
@@ -49,9 +53,7 @@ export function Onboarding() {
     return (
       <div className="fixed inset-0 z-[60] flex items-center justify-center bg-cream animate-fade-in">
         <div className="text-center animate-rise">
-          <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-rubies-red text-3xl font-bold text-white shadow-soft">
-            R
-          </div>
+          <BrandMark size={80} className="mx-auto mb-5 shadow-soft" />
           <h1 className="font-display text-4xl font-bold text-ink">Rubies Cuisine</h1>
           <p className="mt-2 text-sm font-medium tracking-wide text-rubies-blue">
             Are you hungry? Don&apos;t wait!
@@ -68,22 +70,25 @@ export function Onboarding() {
       <button
         type="button"
         onClick={finish}
-        className="absolute right-4 top-4 z-10 rounded-full px-3 py-1.5 text-sm font-medium text-muted"
+        className="absolute right-4 top-4 z-10 rounded-full bg-white/80 px-3 py-1.5 text-sm font-medium text-muted backdrop-blur-sm"
       >
         Skip
       </button>
 
-      <div
-        className={`relative mx-4 mt-16 h-[48vh] overflow-hidden rounded-sheet bg-gradient-to-br ${slide.tone} shadow-soft animate-fade-in`}
-      >
-        <div className="absolute inset-0 opacity-30 mix-blend-overlay"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 20% 20%, white, transparent 40%), radial-gradient(circle at 80% 70%, white, transparent 35%)",
-          }}
+      <div className="relative mx-4 mt-16 h-[48vh] overflow-hidden rounded-sheet shadow-soft animate-fade-in">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          key={slide.image}
+          src={slide.image}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div
+          className={`absolute inset-0 bg-gradient-to-t ${slide.tone}`}
+          aria-hidden
         />
         <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/80">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/85">
             Rubies Cuisine
           </p>
         </div>

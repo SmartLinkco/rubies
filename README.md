@@ -44,7 +44,7 @@ Health check: `GET http://localhost:4000/health`
 ## Workspace layout
 
 ```
-apps/web          Customer + (later) admin UI
+apps/web          Customer + admin UI
 apps/api          Express API + Prisma
 packages/shared   Brand tokens + shared DTOs
 docs/             Plan + design references
@@ -54,7 +54,6 @@ docs/             Plan + design references
 
 See `docs/IMPLEMENTATION_PLAN.md`.
 
-- **Phase 0** — done (Neon + scaffold + seed)
-- **Phase 1** — done (splash/onboarding, discovery, menu detail, local cart + Call/WhatsApp)
-- **Phase 2** — done (email/password auth, guest cart cookie, profile + addresses)
-- **Next:** Phase 3 — checkout + Paystack/COD
+- **Phase 0–5** — done (browse → auth → checkout → orders → offers/catering)
+- **Phase 6** — done (admin board: dashboard, orders, menu CRUD, fees/hours, offers, catering inbox, reviews)
+- **Next:** Phase 7 — notifications hardening

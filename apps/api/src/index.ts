@@ -41,7 +41,7 @@ app.use(cookieParser());
 app.use(attachSession);
 
 app.get("/", (_req, res) => {
-  res.json({ data: { name: "Rubies Cuisine API", version: "0.5.0" } });
+  res.json({ data: { name: "Rubies Cuisine API", version: "0.6.0" } });
 });
 
 app.use("/health", healthRouter);

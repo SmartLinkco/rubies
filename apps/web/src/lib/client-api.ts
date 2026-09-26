@@ -1,14 +1,19 @@
 import type {
   AddressDto,
+  AdminDashboardDto,
+  AdminReviewDto,
   CartDto,
+  CateringInquiryDto,
   CateringInquiryInput,
   DeliveryQuoteDto,
+  MenuItemDto,
   OfferDto,
   OrderDto,
   OrderStatus,
   PlaceOrderInput,
   PlaceOrderResult,
   PromoPreviewDto,
+  RestaurantAdminDto,
   ReviewDto,
   UserDto,
 } from "@rubies/shared";
@@ -26,10 +31,7 @@ export class ApiRequestError extends Error {
   }
 }
 
-async function request<T>(
-  path: string,
-  init?: RequestInit,
-): Promise<T> {
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
     ...init,
     credentials: "include",
@@ -71,8 +73,7 @@ export const clientApi = {
       method: "POST",
       body: JSON.stringify(body),
     }),
-  logout: () =>
-    request<{ ok: boolean }>("/auth/logout", { method: "POST" }),
+  logout: () => request<{ ok: boolean }>("/auth/logout", { method: "POST" }),
   updateProfile: (body: {
     name?: string;
     phone?: string | null;
@@ -148,18 +149,6 @@ export const clientApi = {
       method: "POST",
       body: JSON.stringify({ reference }),
     }),
-  listAdminOrders: () => request<OrderDto[]>("/admin/orders"),
-  updateOrderStatus: (
-    orderNumber: string,
-    body: { status: OrderStatus; note?: string | null; markCodPaid?: boolean },
-  ) =>
-    request<OrderDto>(
-      `/admin/orders/${encodeURIComponent(orderNumber)}/status`,
-      {
-        method: "PATCH",
-        body: JSON.stringify(body),
-      },
-    ),
   listOffers: () => request<OfferDto[]>("/offers"),
   getOffer: (code: string) =>
     request<OfferDto>(`/offers/${encodeURIComponent(code)}`),
@@ -178,18 +167,125 @@ export const clientApi = {
       method: "POST",
       body: JSON.stringify(body),
     }),
-  listCateringInbox: () =>
-    request<
-      {
-        id: string;
-        name: string;
-        phone: string;
-        email: string | null;
-        eventDate: string | null;
-        guestCount: number | null;
-        message: string;
-        status: string;
-        createdAt: string;
-      }[]
-    >("/catering/inbox"),
+  listCateringInbox: () => request<CateringInquiryDto[]>("/catering/inbox"),
+
+  getAdminDashboard: () => request<AdminDashboardDto>("/admin/dashboard"),
+  getAdminStorageStatus: () =>
+    request<{ configured: boolean; bucket: string | null; region: string | null }>(
+      "/admin/storage",
+    ),
+  presignMenuUpload: (body: { contentType: string; filename?: string }) =>
+    request<{
+      key: string;
+      uploadUrl: string;
+      method: "PUT";
+      headers: Record<string, string>;
+      publicUrl: string;
+      displayUrl: string;
+      expiresInSeconds: number;
+    }>("/admin/uploads/presign", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  listAdminOrders: () => request<OrderDto[]>("/admin/orders"),
+  updateOrderStatus: (
+    orderNumber: string,
+    body: { status: OrderStatus; note?: string | null; markCodPaid?: boolean },
+  ) =>
+    request<OrderDto>(
+      `/admin/orders/${encodeURIComponent(orderNumber)}/status`,
+      { method: "PATCH", body: JSON.stringify(body) },
+    ),
+  markOrderPaid: (orderNumber: string) =>
+    request<OrderDto>(
+      `/admin/orders/${encodeURIComponent(orderNumber)}/mark-paid`,
+      { method: "PATCH" },
+    ),
+  listAdminMenu: () => request<MenuItemDto[]>("/admin/menu"),
+  createMenuItem: (body: {
+    name: string;
+    slug?: string;
+    description: string;
+    priceGhs: number;
+    imageUrl?: string | null;
+    category?: string;
+    available?: boolean;
+    sortOrder?: number;
+  }) =>
+    request<MenuItemDto>("/admin/menu", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  updateMenuItem: (
+    id: string,
+    body: Partial<{
+      name: string;
+      slug: string;
+      description: string;
+      priceGhs: number;
+      imageUrl: string | null;
+      category: string;
+      available: boolean;
+      sortOrder: number;
+    }>,
+  ) =>
+    request<MenuItemDto>(`/admin/menu/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }),
+  deleteMenuItem: (id: string) =>
+    request<{ ok?: boolean } | MenuItemDto>(
+      `/admin/menu/${encodeURIComponent(id)}`,
+      { method: "DELETE" },
+    ),
+  getAdminSettings: () => request<RestaurantAdminDto>("/admin/settings"),
+  updateAdminSettings: (body: Partial<RestaurantAdminDto>) =>
+    request<RestaurantAdminDto>("/admin/settings", {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }),
+  listAdminOffers: () => request<OfferDto[]>("/admin/offers"),
+  createOffer: (body: {
+    code: string;
+    title: string;
+    description: string;
+    percentOff?: number | null;
+    amountOffGhs?: number | null;
+    minOrderGhs?: number;
+    expiresAt?: string | null;
+    active?: boolean;
+  }) =>
+    request<OfferDto>("/admin/offers", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  updateOffer: (
+    id: string,
+    body: Partial<{
+      code: string;
+      title: string;
+      description: string;
+      percentOff: number | null;
+      amountOffGhs: number | null;
+      minOrderGhs: number;
+      expiresAt: string | null;
+      active: boolean;
+    }>,
+  ) =>
+    request<OfferDto>(`/admin/offers/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }),
+  listAdminReviews: () => request<AdminReviewDto[]>("/admin/reviews"),
+  updateReviewVisibility: (id: string, hidden: boolean) =>
+    request<AdminReviewDto>(`/admin/reviews/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      body: JSON.stringify({ hidden }),
+    }),
+  listAdminCatering: () => request<CateringInquiryDto[]>("/admin/catering"),
+  updateCateringStatus: (id: string, status: "new" | "contacted" | "done") =>
+    request<CateringInquiryDto>(`/admin/catering/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    }),
 };

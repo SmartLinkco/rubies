@@ -1,11 +1,10 @@
 "use client";
 
 import type { OrderDto, OrderStatus } from "@rubies/shared";
-import { brand } from "@rubies/shared";
 import Link from "next/link";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { AppShell } from "@/components/AppShell";
-import { useAuth } from "@/components/AuthProvider";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { AdminShell } from "@/components/AdminShell";
+import { ShareDeliveryButton } from "@/components/ShareDeliveryButton";
 import { useToast } from "@/components/ToastProvider";
 import { ApiRequestError, clientApi } from "@/lib/client-api";
 import { formatGhs } from "@/lib/format";
@@ -35,6 +34,23 @@ const STATUS_STYLE: Record<OrderStatus, string> = {
   cancelled: "bg-black/10 text-muted",
 };
 
+/** Primary advance CTA color keyed by the *next* status being marked. */
+const ADVANCE_BUTTON: Partial<Record<OrderStatus, string>> = {
+  confirmed: "bg-amber-500 text-white hover:bg-amber-600 shadow-[0_8px_20px_rgba(245,158,11,0.28)]",
+  preparing: "bg-orange-500 text-white hover:bg-orange-600 shadow-[0_8px_20px_rgba(249,115,22,0.28)]",
+  on_the_way: "bg-rubies-blue text-white hover:bg-rubies-blue-soft shadow-[0_8px_20px_rgba(27,58,156,0.28)]",
+  delivered: "bg-emerald-600 text-white hover:bg-emerald-700 shadow-[0_8px_20px_rgba(5,150,105,0.28)]",
+};
+
+const CARD_HEADER: Record<OrderStatus, string> = {
+  pending_confirmation: "bg-amber-50",
+  confirmed: "bg-rubies-blue/[0.06]",
+  preparing: "bg-orange-50",
+  on_the_way: "bg-rubies-blue/10",
+  delivered: "bg-emerald-50",
+  cancelled: "bg-black/[0.03]",
+};
+
 const OPEN: OrderStatus[] = [
   "pending_confirmation",
   "confirmed",
@@ -43,8 +59,7 @@ const OPEN: OrderStatus[] = [
 ];
 
 function formatOrderTime(iso: string) {
-  const date = new Date(iso);
-  return date.toLocaleString(undefined, {
+  return new Date(iso).toLocaleString(undefined, {
     weekday: "short",
     day: "2-digit",
     month: "short",
@@ -54,14 +69,12 @@ function formatOrderTime(iso: string) {
 }
 
 function relativeTime(iso: string) {
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const mins = Math.max(0, Math.floor(diffMs / 60000));
+  const mins = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60000));
   if (mins < 1) return "Just now";
   if (mins < 60) return `${mins} min ago`;
   const hours = Math.floor(mins / 60);
   if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
+  return `${Math.floor(hours / 24)}d ago`;
 }
 
 function itemSummary(order: OrderDto) {
@@ -75,7 +88,7 @@ function itemSummary(order: OrderDto) {
 
 function paymentLabel(order: OrderDto) {
   if (order.paymentMethod === "cod") {
-    return order.paymentStatus === "paid" ? "COD · Paid" : "COD";
+    return order.paymentStatus === "paid" ? "COD · Paid" : "COD · Unpaid";
   }
   if (order.paymentStatus === "paid") return "Paystack · Paid";
   return "Paystack";
@@ -83,41 +96,40 @@ function paymentLabel(order: OrderDto) {
 
 export default function AdminOrdersPage() {
   return (
-    <AppShell
-      restaurant={{
-        name: brand.name,
-        tagline: brand.tagline,
-        phones: [...brand.phones],
-        whatsapp: brand.whatsapp,
-        address: brand.address,
-      }}
-      title="Admin"
-      tagline="Order board"
+    <AdminShell
+      title="Orders"
+      subtitle="Confirm · cook · deliver"
+      action={
+        <Link
+          href="/admin"
+          className="rounded-full bg-white px-3 py-2 text-xs font-semibold text-muted ring-1 ring-black/5"
+        >
+          Today
+        </Link>
+      }
     >
       <AdminOrders />
-    </AppShell>
+    </AdminShell>
   );
 }
 
 function AdminOrders() {
-  const { user, loading } = useAuth();
   const { toast } = useToast();
   const [orders, setOrders] = useState<OrderDto[] | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [tab, setTab] = useState<"open" | "done">("open");
 
-  async function load() {
-    const data = await clientApi.listAdminOrders();
-    setOrders(data);
-  }
+  const load = useCallback(async () => {
+    setOrders(await clientApi.listAdminOrders());
+  }, []);
 
   useEffect(() => {
-    if (!user || user.role !== "admin") {
-      setOrders([]);
-      return;
-    }
     void load().catch(() => setOrders([]));
-  }, [user]);
+    const id = window.setInterval(() => {
+      void load().catch(() => undefined);
+    }, 15000);
+    return () => window.clearInterval(id);
+  }, [load]);
 
   const openOrders = useMemo(
     () => (orders ?? []).filter((o) => OPEN.includes(o.status)),
@@ -166,61 +178,38 @@ function AdminOrders() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="px-4 py-10 text-center text-sm text-muted">Loading…</div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="px-4">
-        <div className="mt-6 rounded-card bg-white/80 px-4 py-10 text-center shadow-soft">
-          <p className="text-sm text-muted">Admin sign-in required.</p>
-          <Link
-            href="/login"
-            className="mt-4 inline-flex rounded-full bg-rubies-red px-5 py-2.5 text-sm font-semibold text-white"
-          >
-            Sign in
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (user.role !== "admin") {
-    return (
-      <div className="px-4">
-        <div className="mt-6 rounded-card bg-white/80 px-4 py-10 text-center shadow-soft">
-          <p className="text-sm text-muted">This board is for restaurant admins.</p>
-          <Link href="/" className="mt-4 inline-flex text-sm font-semibold text-rubies-blue">
-            Back home
-          </Link>
-        </div>
-      </div>
-    );
+  async function markPaid(order: OrderDto) {
+    setBusyId(order.id);
+    try {
+      await clientApi.markOrderPaid(order.orderNumber);
+      await load();
+      toast(`${order.orderNumber} marked paid`);
+    } catch (err) {
+      toast(err instanceof ApiRequestError ? err.message : "Mark paid failed");
+    } finally {
+      setBusyId(null);
+    }
   }
 
   if (!orders) {
-    return (
-      <div className="px-4 py-10 text-center text-sm text-muted">Loading orders…</div>
-    );
+    return <p className="py-8 text-center text-sm text-muted">Loading orders…</p>;
   }
 
   return (
-    <div className="px-4 pb-4">
-      <div className="mt-3 flex gap-2">
+    <div>
+      <div className="flex gap-2 rounded-[18px] bg-white p-1 shadow-soft ring-1 ring-black/[0.04]">
         <TabButton active={tab === "open"} onClick={() => setTab("open")}>
-          Open ({openOrders.length})
+          Open · {openOrders.length}
         </TabButton>
         <TabButton active={tab === "done"} onClick={() => setTab("done")}>
-          Done ({doneOrders.length})
+          Done · {doneOrders.length}
         </TabButton>
       </div>
 
       {visible.length === 0 ? (
-        <div className="mt-6 rounded-card bg-white/80 px-4 py-10 text-center text-sm text-muted shadow-soft">
-          No {tab} orders.
+        <div className="mt-6 rounded-[24px] bg-white px-4 py-10 text-center shadow-soft ring-1 ring-black/[0.04]">
+          <p className="text-sm font-medium text-ink">No {tab} orders</p>
+          <p className="mt-1 text-xs text-muted">New tickets refresh every 15 seconds.</p>
         </div>
       ) : (
         <ul className="mt-4 space-y-3">
@@ -231,6 +220,7 @@ function AdminOrders() {
                 busy={busyId === order.id}
                 onAdvance={() => void advance(order)}
                 onCancel={() => void cancel(order)}
+                onMarkPaid={() => void markPaid(order)}
               />
             </li>
           ))}
@@ -253,8 +243,8 @@ function TabButton({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-        active ? "bg-rubies-red text-white" : "bg-cream-deep text-muted"
+      className={`flex-1 rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${
+        active ? "bg-ink text-white" : "text-muted"
       }`}
     >
       {children}
@@ -267,81 +257,114 @@ function AdminOrderCard({
   busy,
   onAdvance,
   onCancel,
+  onMarkPaid,
 }: {
   order: OrderDto;
   busy: boolean;
   onAdvance: () => void;
   onCancel: () => void;
+  onMarkPaid: () => void;
 }) {
   const next = NEXT_STATUS[order.status];
   const canAct = order.status !== "cancelled" && order.status !== "delivered";
+  const showMarkPaid =
+    order.paymentMethod === "cod" && order.paymentStatus !== "paid";
   const itemCount = order.items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <article className="overflow-hidden rounded-card bg-white shadow-soft ring-1 ring-black/[0.04]">
-      <div className="flex items-start justify-between gap-3 border-b border-black/[0.04] bg-cream/50 px-4 py-3">
+    <article className="overflow-hidden rounded-[22px] bg-white shadow-soft ring-1 ring-black/[0.04]">
+      <div
+        className={`flex items-start justify-between gap-3 border-b border-black/[0.04] px-4 py-3 ${CARD_HEADER[order.status]}`}
+      >
         <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <p className="truncate text-sm font-bold text-ink">
+              {order.guestName ?? "Guest"}
+            </p>
+            <span
+              className={`shrink-0 rounded-md px-2 py-0.5 text-[10px] font-semibold ${STATUS_STYLE[order.status]}`}
+            >
+              {STATUS_LABEL[order.status]}
+            </span>
+          </div>
           <Link
             href={`/orders/${order.orderNumber}`}
-            className="block truncate text-sm font-semibold text-ink hover:text-rubies-blue"
+            className="mt-1 block truncate text-xs font-medium text-muted hover:text-rubies-blue"
           >
             {order.orderNumber}
           </Link>
-          <p className="mt-1 text-xs text-muted">
-            <span className="font-medium text-ink">{relativeTime(order.createdAt)}</span>
-            <span className="mx-1.5 text-black/20">·</span>
+          <p className="mt-1 text-[11px] text-muted">
+            <span className="font-semibold text-ink">{relativeTime(order.createdAt)}</span>
+            <span className="mx-1 text-black/20">·</span>
             {formatOrderTime(order.createdAt)}
           </p>
         </div>
-        <span
-          className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold ${STATUS_STYLE[order.status]}`}
-        >
-          {STATUS_LABEL[order.status]}
-        </span>
+        <p className="shrink-0 font-display text-lg font-bold text-ink">
+          {formatGhs(order.totalGhs)}
+        </p>
       </div>
 
       <div className="px-4 py-3">
         <p className="text-sm font-medium text-ink">{itemSummary(order)}</p>
-
         <div className="mt-2.5 flex flex-wrap gap-1.5">
           <Chip>
             {itemCount} {itemCount === 1 ? "item" : "items"}
           </Chip>
           <Chip>{paymentLabel(order)}</Chip>
-          <Chip className="font-semibold text-rubies-blue">
-            {formatGhs(order.totalGhs)}
-          </Chip>
         </div>
-
         <div className="mt-3 space-y-1.5">
-          <MetaRow label="Customer">
-            {order.guestName ?? "Guest"}
-            {order.guestPhone ? ` · ${order.guestPhone}` : ""}
+          <MetaRow label="Phone">
+            {order.guestPhone ? (
+              <a href={`tel:${order.guestPhone}`} className="font-semibold text-rubies-blue">
+                {order.guestPhone}
+              </a>
+            ) : (
+              "—"
+            )}
           </MetaRow>
-          <MetaRow label="Deliver to">{order.deliveryLine1}</MetaRow>
+          <MetaRow label="Deliver">{order.deliveryLine1}</MetaRow>
         </div>
       </div>
 
-      {canAct ? (
-        <div className="flex gap-2 border-t border-black/[0.04] bg-cream/40 px-4 py-3">
-          {next ? (
+      {canAct || showMarkPaid ? (
+        <div className="flex flex-wrap gap-2 border-t border-black/[0.04] bg-[#FBF8F4] px-4 py-3">
+          {next && canAct ? (
             <button
               type="button"
               disabled={busy}
               onClick={onAdvance}
-              className="flex-1 rounded-full bg-rubies-red px-3 py-2.5 text-xs font-semibold text-white transition hover:bg-rubies-red-deep disabled:opacity-60"
+              className={`min-w-[8rem] flex-1 rounded-2xl px-3 py-3 text-xs font-semibold transition disabled:opacity-60 ${
+                ADVANCE_BUTTON[next] ?? "bg-rubies-red text-white hover:bg-rubies-red-deep"
+              }`}
             >
               {busy ? "Updating…" : `Mark ${STATUS_LABEL[next]}`}
             </button>
           ) : null}
-          <button
-            type="button"
-            disabled={busy}
-            onClick={onCancel}
-            className="rounded-full bg-white px-4 py-2.5 text-xs font-semibold text-muted ring-1 ring-black/10 transition hover:bg-cream-deep disabled:opacity-60"
-          >
-            Cancel
-          </button>
+          <ShareDeliveryButton order={order} />
+          {showMarkPaid ? (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={onMarkPaid}
+              className="rounded-2xl bg-rubies-blue px-4 py-3 text-xs font-semibold text-white disabled:opacity-60"
+            >
+              Mark paid
+            </button>
+          ) : null}
+          {canAct ? (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={onCancel}
+              className="rounded-2xl bg-white px-4 py-3 text-xs font-semibold text-muted ring-1 ring-black/10 disabled:opacity-60"
+            >
+              Cancel
+            </button>
+          ) : null}
+        </div>
+      ) : order.status !== "cancelled" ? (
+        <div className="flex flex-wrap gap-2 border-t border-black/[0.04] bg-[#FBF8F4] px-4 py-3">
+          <ShareDeliveryButton order={order} />
         </div>
       ) : null}
     </article>

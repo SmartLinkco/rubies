@@ -1,14 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { ApiRequestError } from "@/lib/client-api";
 
+function safeNextPath(raw: string | null) {
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return null;
+  return raw;
+}
+
 export function LoginForm() {
   const { login } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -19,8 +25,15 @@ export function LoginForm() {
     setPending(true);
     setError(null);
     try {
-      await login(email, password);
-      router.push("/profile");
+      const data = await login(email, password);
+      const next = safeNextPath(searchParams.get("next"));
+      if (next) {
+        router.push(next);
+      } else if (data.role === "admin") {
+        router.push("/admin");
+      } else {
+        router.push("/profile");
+      }
       router.refresh();
     } catch (err) {
       setError(

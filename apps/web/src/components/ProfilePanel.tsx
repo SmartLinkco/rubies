@@ -40,7 +40,7 @@ export function ProfilePanel({
   }[] = [
     { href: "/orders", label: "My Orders", icon: <OrdersIcon /> },
     ...(user?.role === "admin"
-      ? [{ href: "/admin/orders", label: "Admin orders", icon: <GearIcon /> }]
+      ? [{ href: "/admin", label: "Admin board", icon: <GearIcon /> }]
       : []),
     {
       href: user ? "/profile/addresses" : "/login",

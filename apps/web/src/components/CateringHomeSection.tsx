@@ -17,6 +17,7 @@ type PromoAd = {
   primary: { href: string; label: string };
   secondary: { href: string; label: string };
   tone: "blue" | "red";
+  image: string;
 };
 
 const ADS: PromoAd[] = [
@@ -28,6 +29,7 @@ const ADS: PromoAd[] = [
     primary: { href: "/catering", label: "Book an event" },
     secondary: { href: "/about", label: "Learn more" },
     tone: "blue",
+    image: "/ads/ad-events.png",
   },
   {
     id: "space",
@@ -37,6 +39,7 @@ const ADS: PromoAd[] = [
     primary: { href: "/event-space", label: "Book the space" },
     secondary: { href: "/about", label: "Learn more" },
     tone: "red",
+    image: "/ads/ad-event-space.png",
   },
 ];
 
@@ -57,7 +60,6 @@ export function CateringHomeSection() {
   const next = useCallback(() => go(index + 1), [go, index]);
   const prev = useCallback(() => go(index - 1), [go, index]);
 
-  // Auto-advance for infinite loop feel
   useEffect(() => {
     const id = window.setInterval(() => {
       if (Date.now() < pauseUntil.current) return;
@@ -68,7 +70,6 @@ export function CateringHomeSection() {
   }, []);
 
   function onPointerDown(e: ReactPointerEvent<HTMLDivElement>) {
-    // Don't steal clicks from links/buttons
     const target = e.target as HTMLElement;
     if (target.closest("a, button")) return;
     active.current = true;
@@ -144,49 +145,51 @@ export function CateringHomeSection() {
 function PromoSlide({ ad }: { ad: PromoAd }) {
   const isBlue = ad.tone === "blue";
   return (
-    <div
-      className={`relative min-h-[220px] px-5 pb-9 pt-6 text-white ${
-        isBlue
-          ? "bg-rubies-blue shadow-[inset_0_0_0_0_transparent]"
-          : "bg-rubies-red"
-      }`}
-    >
-      <div
-        className="pointer-events-none absolute -right-10 -top-12 h-36 w-36 rounded-full bg-white/10"
-        aria-hidden
+    <div className="relative min-h-[240px] overflow-hidden text-white">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={ad.image}
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover"
       />
       <div
-        className="pointer-events-none absolute -bottom-14 left-8 h-32 w-32 rounded-full bg-black/10"
+        className={`absolute inset-0 ${
+          isBlue
+            ? "bg-gradient-to-r from-rubies-blue/92 via-rubies-blue/78 to-rubies-blue/35"
+            : "bg-gradient-to-r from-rubies-red/92 via-rubies-red/78 to-rubies-red/35"
+        }`}
         aria-hidden
       />
 
-      <p className="relative text-xs font-semibold uppercase tracking-[0.14em] text-white/75">
-        {ad.eyebrow}
-      </p>
-      <h2 className="relative mt-2 font-display text-[1.55rem] font-bold leading-tight tracking-tight">
-        {ad.title}
-      </h2>
-      <p className="relative mt-2 max-w-[21rem] text-sm leading-relaxed text-white/90">
-        {ad.body}
-      </p>
+      <div className="relative px-5 pb-9 pt-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/75">
+          {ad.eyebrow}
+        </p>
+        <h2 className="mt-2 font-display text-[1.55rem] font-bold leading-tight tracking-tight">
+          {ad.title}
+        </h2>
+        <p className="mt-2 max-w-[21rem] text-sm leading-relaxed text-white/90">
+          {ad.body}
+        </p>
 
-      <div className="relative mt-5 flex flex-wrap gap-2">
-        <Link
-          href={ad.primary.href}
-          className={`inline-flex rounded-full px-5 py-2.5 text-sm font-semibold transition ${
-            isBlue
-              ? "bg-white text-rubies-blue hover:bg-cream"
-              : "bg-white text-rubies-red hover:bg-cream"
-          }`}
-        >
-          {ad.primary.label}
-        </Link>
-        <Link
-          href={ad.secondary.href}
-          className="inline-flex rounded-full bg-white/15 px-5 py-2.5 text-sm font-semibold text-white ring-1 ring-white/30 transition hover:bg-white/25"
-        >
-          {ad.secondary.label}
-        </Link>
+        <div className="mt-5 flex flex-wrap gap-2">
+          <Link
+            href={ad.primary.href}
+            className={`inline-flex rounded-full px-5 py-2.5 text-sm font-semibold transition ${
+              isBlue
+                ? "bg-white text-rubies-blue hover:bg-cream"
+                : "bg-white text-rubies-red hover:bg-cream"
+            }`}
+          >
+            {ad.primary.label}
+          </Link>
+          <Link
+            href={ad.secondary.href}
+            className="inline-flex rounded-full bg-white/15 px-5 py-2.5 text-sm font-semibold text-white ring-1 ring-white/30 transition hover:bg-white/25"
+          >
+            {ad.secondary.label}
+          </Link>
+        </div>
       </div>
     </div>
   );

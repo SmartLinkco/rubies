@@ -12,6 +12,7 @@ import type {
   AddressDto,
   CartDto,
   CartLineDto,
+  MenuItemDto,
   OrderDto,
   OrderItemDto,
   OrderStatusEventDto,
@@ -52,6 +53,20 @@ export function toAddressDto(address: {
   };
 }
 
+export function toMenuItemDto(item: MenuItem): MenuItemDto {
+  return {
+    id: item.id,
+    name: item.name,
+    slug: item.slug,
+    description: item.description,
+    priceGhs: Number(item.priceGhs),
+    imageUrl: item.imageUrl,
+    category: item.category,
+    available: item.available,
+    sortOrder: item.sortOrder,
+  };
+}
+
 type CartWithItems = Cart & {
   items: (CartItem & { menuItem: MenuItem })[];
 };
@@ -88,6 +103,7 @@ type OrderWithRelations = Order & {
   items: OrderItem[];
   statusEvents: OrderStatusEvent[];
   review?: Review | null;
+  payment?: { providerRef: string | null } | null;
 };
 
 export function toOrderDto(
@@ -124,6 +140,8 @@ export function toOrderDto(
     deliveryLine1: order.deliveryLine1,
     deliveryLandmark: order.deliveryLandmark,
     deliveryCity: order.deliveryCity,
+    deliveryLat: order.deliveryLat,
+    deliveryLng: order.deliveryLng,
     guestName: order.guestName,
     guestPhone: order.guestPhone,
     notes: order.notes,

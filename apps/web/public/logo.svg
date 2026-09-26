@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 72" fill="none" role="img" aria-label="Rubies Cuisine">
+  <rect x="0" y="4" width="64" height="64" rx="16" fill="#E10600"/>
+  <path
+    fill="#FFFFFF"
+    d="M18.5 18h16.2c7.1 0 11.8 3.9 11.8 10.1 0 4.4-2.4 7.5-6.3 8.9l7.4 16.5H39.2l-6.6-15.2H27.2V53.5H18.5V18Zm8.7 7.2v9.1h6.2c3.5 0 5.5-1.7 5.5-4.6s-2-4.5-5.5-4.5H27.2Z"
+  />
+  <path
+    fill="#FBF6F0"
+    d="M44.2 20.2 46.8 22l1.8-2.6 1.8 2.6 2.6-1.8-1.8 2.6 2.6 1.8-2.6 1.8 1.8 2.6-2.6-1.8-1.8 2.6-1.8-2.6-2.6 1.8 1.8-2.6-2.6-1.8 2.6-1.8-1.8-2.6 2.6 1.8Z"
+  />
+  <text
+    x="80"
+    y="46"
+    fill="#1A1A1A"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="28"
+    font-weight="700"
+    letter-spacing="-0.02em"
+  >Rubies Cuisine</text>
+</svg>

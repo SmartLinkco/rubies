@@ -140,6 +140,8 @@ export interface OrderDto {
   deliveryLine1: string;
   deliveryLandmark: string | null;
   deliveryCity: string;
+  deliveryLat: number | null;
+  deliveryLng: number | null;
   guestName: string | null;
   guestPhone: string | null;
   notes: string | null;
@@ -218,5 +220,63 @@ export interface CateringInquiryInput {
   eventDate?: string | null;
   guestCount?: number | null;
   message: string;
+}
+
+export interface CateringInquiryDto {
+  id: string;
+  name: string;
+  phone: string;
+  email: string | null;
+  eventDate: string | null;
+  guestCount: number | null;
+  message: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface RestaurantAdminDto {
+  name: string;
+  tagline: string;
+  phones: string[];
+  whatsapp: string;
+  address: string;
+  deliveryFeeMode: DeliveryFeeMode;
+  fixedDeliveryFeeGhs: number;
+  distanceBaseFeeGhs: number;
+  distancePerKmGhs: number;
+  maxDeliveryKm: number;
+  restaurantLat: number;
+  restaurantLng: number;
+  closedWeekdays: number[];
+  forceClosed: boolean;
+  forceOpen: boolean;
+  isAcceptingOrders: boolean;
+  closedReason: string | null;
+  nextOpenLabel: string | null;
+  notifySmsOnNewOrder: boolean;
+  notifyEmailOnNewOrder: boolean;
+  ownerEmails: string[];
+  ownerPhones: string[];
+}
+
+export interface AdminDashboardDto {
+  openOrderCount: number;
+  pendingConfirmationCount: number;
+  deliveredTodayCount: number;
+  newCateringCount: number;
+  isAcceptingOrders: boolean;
+  closedReason: string | null;
+  recentOrders: OrderDto[];
+}
+
+export interface AdminReviewDto {
+  id: string;
+  orderId: string;
+  orderNumber: string;
+  rating: number;
+  comment: string | null;
+  hidden: boolean;
+  guestName: string | null;
+  createdAt: string;
 }
 

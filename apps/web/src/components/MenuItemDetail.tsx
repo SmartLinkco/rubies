@@ -6,6 +6,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { AddToCartButton } from "@/components/AddToCartButton";
+import { BrandMark } from "@/components/BrandMark";
 import { DishVisual } from "@/components/DishVisual";
 import { useToast } from "@/components/ToastProvider";
 import { useCart, useHasMounted } from "@/lib/cart";
@@ -42,6 +43,7 @@ export function MenuItemDetail({
       <div className="relative">
         <DishVisual
           slug={item.slug}
+          imageUrl={item.imageUrl}
           className="h-[38vh] min-h-[220px] w-full"
         />
         <Link
@@ -56,9 +58,7 @@ export function MenuItemDetail({
 
       <div className="relative z-10 -mt-10 rounded-t-[28px] bg-white px-4 pb-6 pt-6 shadow-[0_-8px_30px_rgba(26,26,26,0.08)]">
         <div className="absolute -top-6 left-5 flex h-[52px] w-[52px] items-center justify-center rounded-2xl bg-white shadow-soft ring-1 ring-black/5">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-rubies-red text-sm font-bold text-white">
-            R
-          </span>
+          <BrandMark size={40} />
         </div>
 
         <div className="mt-7">

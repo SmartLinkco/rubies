@@ -2,14 +2,39 @@ import { getDishVisual } from "@/lib/dish";
 
 export function DishVisual({
   slug,
+  imageUrl,
   className = "",
   compact = false,
 }: {
   slug: string;
+  imageUrl?: string | null;
   className?: string;
   compact?: boolean;
 }) {
   const visual = getDishVisual(slug);
+
+  if (imageUrl) {
+    return (
+      <div className={`relative overflow-hidden bg-cream-deep ${className}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={imageUrl}
+          alt=""
+          className="h-full w-full object-cover"
+          loading="lazy"
+        />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/45 to-transparent p-3 pt-10">
+          <span
+            className={`font-display font-bold text-white ${
+              compact ? "text-sm" : "text-lg"
+            }`}
+          >
+            {visual.label}
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

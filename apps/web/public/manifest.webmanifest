@@ -1,0 +1,21 @@
+{
+  "name": "Rubies Cuisine",
+  "short_name": "Rubies",
+  "description": "Good food, delivered in Amamorley. Are you hungry? Don't wait!",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FBF6F0",
+  "theme_color": "#E10600",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
