@@ -47,7 +47,7 @@ model User {
   name              String?
   role              UserRole         @default(customer)
   isGuest           Boolean          @default(false)
-  preferredPayment  PaymentMethod    @default(cod)
+  preferredPayment  PaymentMethod    @default(paystack)
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
   addresses         Address[]
@@ -117,7 +117,7 @@ model RestaurantSettings {
   tagline                 String          @default("Are you hungry? Don't wait!")
   phones                  String[]
   whatsapp                String          @default("233277491795")
-  address                 String          @default("Amamorley Canada Junction, off the Pokuase–Ablekuma Highway")
+  address                 String          @default("Rubies Cuisine, MMX5+9C2, Achiaman")
   deliveryFeeMode         DeliveryFeeMode @default(fixed)
   fixedDeliveryFeeGhs     Decimal         @default(10) @db.Decimal(10, 2)
   distanceBaseFeeGhs      Decimal         @default(8) @db.Decimal(10, 2)

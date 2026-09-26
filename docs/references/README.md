@@ -24,7 +24,7 @@ Saved for planning and implementation. Do not treat Foodora visuals as brand; us
 - **Services:** Daily delivery; catering (corporate & individuals); bulk cooking for families
 - **Closed:** Wednesdays
 - **Phones:** 027-749-1795, 059-393-3901
-- **Location:** Amamorley Canada Junction, off the Pokuase–Ablekuma Highway (Greater Accra, Ghana)
+- **Location:** Rubies Cuisine, MMX5+9C2, Achiaman (Greater Accra, Ghana)
 
 ## UX inspiration (from Foodora — adapt, don’t copy)
 

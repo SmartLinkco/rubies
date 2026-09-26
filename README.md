@@ -1,6 +1,6 @@
 # Rubies Cuisine
 
-Lightweight food-ordering webapp for **Rubies Cuisine** (Amamorley / Greater Accra).
+Lightweight food-ordering webapp for **Rubies Cuisine** (Achiaman / Greater Accra).
 
 - **Web:** Next.js → Vercel (`apps/web`)
 - **API:** Express → Render (`apps/api`)

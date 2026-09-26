@@ -149,12 +149,13 @@ export async function updateOrderStatus(opts: {
   });
 
   await notifyOrderStatusChange({
-    orderNumber: existing.orderNumber,
-    status: opts.status,
+    order: await getOrderByNumber(existing.orderNumber),
     customerPhone: existing.guestPhone ?? existing.user?.phone,
     customerEmail: existing.user?.email,
-    ownerPhones: settings?.ownerPhones ?? [],
-    ownerEmails: settings?.ownerEmails ?? [],
+    ownerPhones: settings?.notifySmsOnNewOrder ? (settings.ownerPhones ?? []) : [],
+    ownerEmails: settings?.notifyEmailOnNewOrder
+      ? (settings.ownerEmails ?? [])
+      : [],
     notifyCustomer: true,
     notifyOwner: opts.status === "pending_confirmation",
   });
@@ -413,21 +414,22 @@ export async function placeOrder(opts: {
     });
   }
 
+  const orderDto = toOrderDto(await loadOrder(order.id), {
+    paystackAuthorizationUrl: authorizationUrl,
+  });
+
   await notifyOrderStatusChange({
-    orderNumber: order.orderNumber,
-    status: "pending_confirmation",
+    order: orderDto,
     customerPhone: guestPhone,
     customerEmail: contactEmail,
-    ownerPhones: settings.ownerPhones,
-    ownerEmails: settings.ownerEmails,
+    ownerPhones: settings.notifySmsOnNewOrder ? settings.ownerPhones : [],
+    ownerEmails: settings.notifyEmailOnNewOrder ? settings.ownerEmails : [],
     notifyCustomer: true,
     notifyOwner: true,
   });
 
   return {
-    order: toOrderDto(await loadOrder(order.id), {
-      paystackAuthorizationUrl: authorizationUrl,
-    }),
+    order: orderDto,
     authorizationUrl,
   };
 }

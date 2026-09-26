@@ -100,7 +100,7 @@ function AdminDashboard() {
             </p>
             <p className="mt-1 max-w-[16rem] text-[13px] leading-snug text-white/75">
               {data.isAcceptingOrders
-                ? "Customers can place COD & Paystack orders."
+                ? "Customers can place COD & pay-now orders."
                 : data.closedReason ?? "Ordering is paused."}
             </p>
           </div>
@@ -252,7 +252,7 @@ function RecentOrderRow({ order }: { order: OrderDto }) {
         : "COD"
       : order.paymentStatus === "paid"
         ? "Paid"
-        : "Paystack";
+        : "Awaiting payment";
 
   return (
     <Link

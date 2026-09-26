@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
-import { sendEmail, sendSms } from "../lib/notify.js";
+import { notifyCateringInquiry } from "../lib/notify.js";
 import { prisma } from "../lib/prisma.js";
 import { AppError } from "../middleware/error.js";
 import { requireAdmin } from "../middleware/session.js";
@@ -14,6 +14,7 @@ const inquirySchema = z.object({
   eventDate: z.string().datetime().optional().nullable(),
   guestCount: z.number().int().min(1).max(5000).optional().nullable(),
   message: z.string().min(10).max(2000),
+  kind: z.enum(["catering", "event-space"]).optional(),
 });
 
 cateringRouter.post("/", async (req, res) => {
@@ -38,44 +39,27 @@ cateringRouter.post("/", async (req, res) => {
     },
   });
 
-  const body = [
-    `New catering inquiry from ${inquiry.name}`,
-    `Phone: ${inquiry.phone}`,
-    inquiry.email ? `Email: ${inquiry.email}` : null,
-    inquiry.guestCount ? `Guests: ${inquiry.guestCount}` : null,
-    inquiry.eventDate ? `Event: ${inquiry.eventDate.toISOString().slice(0, 10)}` : null,
-    "",
-    inquiry.message,
-  ]
-    .filter(Boolean)
-    .join("\n");
-
-  const jobs: Promise<unknown>[] = [];
   const ownerPhones = settings?.ownerPhones?.length
     ? settings.ownerPhones
     : ["0277491795"];
   const ownerEmails = settings?.ownerEmails?.length
     ? settings.ownerEmails
-    : ["owner@rubiescuisine.local"];
+    : [];
 
-  for (const phone of ownerPhones) {
-    jobs.push(
-      sendSms({
-        to: phone,
-        body: `Catering inquiry from ${inquiry.name}: ${inquiry.phone}`,
-      }),
+  if (ownerEmails.length || ownerPhones.length) {
+    await notifyCateringInquiry(
+      {
+        name: inquiry.name,
+        phone: inquiry.phone,
+        email: inquiry.email,
+        eventDate: inquiry.eventDate,
+        guestCount: inquiry.guestCount,
+        message: inquiry.message,
+        kind: parsed.data.kind ?? "catering",
+      },
+      { ownerPhones, ownerEmails },
     );
   }
-  for (const email of ownerEmails) {
-    jobs.push(
-      sendEmail({
-        to: email,
-        subject: `Catering inquiry — ${inquiry.name}`,
-        body,
-      }),
-    );
-  }
-  await Promise.allSettled(jobs);
 
   res.status(201).json({
     data: {

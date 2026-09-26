@@ -14,7 +14,7 @@ Lightweight single-restaurant webapp. Foodora flows/UX patterns; Rubies red/blue
 | Delivery fees | Admin toggles **fixed fee** vs **distance-based**; closed Wednesdays (see UX below) |
 | Menu v1 | 4 dishes @ **GHS 45**; admin CRUD thereafter |
 | Auth | Guest checkout **and** accounts |
-| Stack | Next.js (Vercel) · Express (Render) · PostgreSQL on **Neon** · SMS provider TBD (docs later) |
+| Stack | Next.js (Vercel) · Express (Render) · PostgreSQL on **Neon** · Email via **Resend** · SMS provider TBD |
 | Visual | Foodora soft cream / rounded cards · Rubies red + royal blue accents |
 
 ## Closed-day UX (recommendation)
@@ -142,7 +142,7 @@ Auth-separated admin (role `admin`).
 **Goal:** Reliable owner + customer messaging.
 
 - Pluggable SMS provider (interface ready; wire when API docs arrive)
-- Transactional email (e.g. Resend/SendGrid)
+- Transactional email via **Resend** (`RESEND_API_KEY` + `RESEND_FROM_EMAIL`)
 - Admin config respected per event type
 - Retry / failure logging; no duplicate blasts on webhook retries
 

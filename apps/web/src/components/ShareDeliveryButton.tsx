@@ -38,8 +38,8 @@ export function buildDeliveryShareText(order: OrderDto, pickup: PickupPoint) {
         ? "Cash on delivery (paid)"
         : "Cash on delivery (collect)"
       : order.paymentStatus === "paid"
-        ? "Paid online (Paystack)"
-        : "Paystack (pending)";
+        ? "Paid online"
+        : "Pay online (pending)";
 
   return [
     `🛵 ${pickup.name} — delivery job`,

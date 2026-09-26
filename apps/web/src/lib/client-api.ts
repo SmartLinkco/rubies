@@ -60,7 +60,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     throw new ApiRequestError(
       res.status,
       json?.error?.code ?? "REQUEST_FAILED",
-      json?.error?.message ?? "Request failed",
+      json?.error?.message ?? "Something went wrong. Please try again.",
     );
   }
 

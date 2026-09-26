@@ -6,7 +6,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Rubies Cuisine",
-  description: "Good food, delivered in Amamorley. Are you hungry? Don't wait!",
+  description: "Good food, delivered in Achiaman. Are you hungry? Don't wait!",
   icons: {
     icon: [
       { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
@@ -18,13 +18,13 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   openGraph: {
     title: "Rubies Cuisine",
-    description: "Are you hungry? Don't wait! Home-cooked Ghanaian meals delivered in Amamorley.",
+    description: "Are you hungry? Don't wait! Home-cooked Ghanaian meals delivered in Achiaman.",
     images: [{ url: "/og-default.webp", width: 1200, height: 630, alt: "Rubies Cuisine" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Rubies Cuisine",
-    description: "Are you hungry? Don't wait! Home-cooked Ghanaian meals delivered in Amamorley.",
+    description: "Are you hungry? Don't wait! Home-cooked Ghanaian meals delivered in Achiaman.",
     images: ["/og-default.webp"],
   },
 };

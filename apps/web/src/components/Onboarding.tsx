@@ -9,7 +9,7 @@ const STORAGE_KEY = "rubies_onboarded_v1";
 const slides = [
   {
     title: "Home-cooked Ghanaian meals",
-    body: "Jollof, fufu, banku, and grilled chicken, prepared fresh in Amamorley.",
+    body: "Jollof, fufu, banku, and grilled chicken, prepared fresh in Achiaman.",
     image: "/onboarding/onboard-1.webp",
     tone: "from-[#e10600]/75 via-[#1b3a9c]/45 to-transparent",
   },

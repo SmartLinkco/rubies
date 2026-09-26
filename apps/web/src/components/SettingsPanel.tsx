@@ -9,7 +9,7 @@ export function SettingsPanel() {
   const { user, loading, setUser } = useAuth();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [preferredPayment, setPreferredPayment] = useState<"cod" | "paystack">("cod");
+  const [preferredPayment, setPreferredPayment] = useState<"cod" | "paystack">("paystack");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -81,8 +81,8 @@ export function SettingsPanel() {
         <div className="grid grid-cols-2 gap-2">
           {(
             [
+              ["paystack", "Pay now"],
               ["cod", "Cash on delivery"],
-              ["paystack", "Paystack"],
             ] as const
           ).map(([value, labelText]) => (
             <button

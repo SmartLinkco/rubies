@@ -120,7 +120,7 @@ function AdminMenu() {
   async function onPickImage(file: File | null) {
     if (!file) return;
     if (!storageReady) {
-      toast({ message: "Neon storage not configured yet", sound: false });
+      toast({ message: "Photo uploads aren't available right now", sound: false });
       return;
     }
     if (!file.type.startsWith("image/")) {
@@ -219,7 +219,7 @@ function AdminMenu() {
             ) : null}
             <div className="mt-2 flex flex-wrap gap-2">
               <label className="inline-flex cursor-pointer items-center rounded-full bg-rubies-blue px-3 py-2 text-xs font-semibold text-white">
-                {uploading ? "Uploading…" : storageReady ? "Upload image" : "Storage offline"}
+                {uploading ? "Uploading…" : storageReady ? "Upload image" : "Uploads unavailable"}
                 <input
                   type="file"
                   accept="image/jpeg,image/png,image/webp,image/gif"
@@ -246,7 +246,8 @@ function AdminMenu() {
             </div>
             {!storageReady ? (
               <p className="mt-2 text-[11px] text-muted">
-                Add Neon Object Storage credentials to the API `.env` to enable uploads.
+                Image uploads aren&apos;t available right now. You can still save
+                the dish and add a photo later.
               </p>
             ) : null}
           </div>

@@ -38,7 +38,7 @@ export default async function AboutPage() {
             <p className="font-display text-2xl font-bold">{name}</p>
             <p className="mt-1 text-sm text-white/85">{tagline}</p>
             <p className="mt-4 text-sm text-white/90">
-              Daily delivery from Amamorley. We also take event orders, corporate
+              Daily delivery from Achiaman. We also take event orders, corporate
               catering, and bulk cooking for families. Closed Wednesdays.
             </p>
           </div>
@@ -58,7 +58,7 @@ export default async function AboutPage() {
             <h2 className="text-sm font-semibold text-ink">Home-cooked plates</h2>
             <p className="mt-2 text-sm text-muted">
               Jollof, fufu, banku, and grilled chicken prepared fresh for delivery
-              across Amamorley.
+              across Achiaman.
             </p>
           </div>
         </section>

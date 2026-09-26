@@ -51,7 +51,7 @@ function CheckoutForm() {
   const [discountGhs, setDiscountGhs] = useState(0);
   const [promoError, setPromoError] = useState<string | null>(null);
   const [promoBusy, setPromoBusy] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("paystack");
   const [quote, setQuote] = useState<DeliveryQuoteDto | null>(null);
   const [quotedSubtotal, setQuotedSubtotal] = useState<number | null>(null);
   const [quotedTotal, setQuotedTotal] = useState<number | null>(null);
@@ -271,7 +271,7 @@ function CheckoutForm() {
               onClick={openPicker}
               className="text-xs font-semibold text-rubies-blue"
             >
-              Change pin
+              Change location
             </button>
           </div>
 
@@ -342,8 +342,8 @@ function CheckoutForm() {
           <div className="mt-3 grid grid-cols-2 gap-2">
             {(
               [
+                { id: "paystack", label: "Pay now" },
                 { id: "cod", label: "Cash on delivery" },
-                { id: "paystack", label: "Paystack" },
               ] as const
             ).map((option) => (
               <button
@@ -459,8 +459,8 @@ function CheckoutForm() {
           {busy
             ? "Placing order…"
             : paymentMethod === "paystack"
-              ? `Pay ${formatGhs(total)} with Paystack`
-              : `Place COD order · ${formatGhs(total)}`}
+              ? `Pay ${formatGhs(total)}`
+              : `Place order · ${formatGhs(total)}`}
         </button>
 
         <div className="grid grid-cols-2 gap-3">

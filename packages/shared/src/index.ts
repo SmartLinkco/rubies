@@ -3,7 +3,7 @@ export const brand = {
   tagline: "Are you hungry? Don't wait!",
   phones: ["0277491795", "0593933901"],
   whatsapp: "233277491795",
-  address: "Amamorley Canada Junction, off the Pokuase–Ablekuma Highway",
+  address: "Rubies Cuisine, MMX5+9C2, Achiaman",
   currency: "GHS",
   colors: {
     cream: "#FBF6F0",
@@ -220,6 +220,7 @@ export interface CateringInquiryInput {
   eventDate?: string | null;
   guestCount?: number | null;
   message: string;
+  kind?: "catering" | "event-space";
 }
 
 export interface CateringInquiryDto {

@@ -25,7 +25,8 @@ export default async function HomePage() {
 
           {!restaurant ? (
             <div className="rounded-card border border-dashed border-black/10 bg-white/60 px-4 py-3 text-sm text-muted">
-              API offline. Start <code className="text-ink">npm run dev:api</code>.
+              We&apos;re having trouble loading the menu right now. Please try
+              again in a moment.
             </div>
           ) : null}
         </div>

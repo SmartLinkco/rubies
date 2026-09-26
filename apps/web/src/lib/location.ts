@@ -12,7 +12,7 @@ export const LOCATION_STORAGE_KEY = "rubies_delivery_location_v1";
 
 export const DEFAULT_LOCATION: DeliveryLocation = {
   label: "Home",
-  line1: "Amamorley Canada Junction, off the Pokuase–Ablekuma Highway",
+  line1: "Rubies Cuisine, MMX5+9C2, Achiaman",
   city: "Accra",
   lat: 5.683,
   lng: -0.266,

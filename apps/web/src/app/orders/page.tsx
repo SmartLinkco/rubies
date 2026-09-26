@@ -38,9 +38,9 @@ function paymentLabel(order: OrderDto) {
   if (order.paymentMethod === "cod") {
     return order.paymentStatus === "paid" ? "COD · Paid" : "Cash on delivery";
   }
-  if (order.paymentStatus === "paid") return "Paystack · Paid";
-  if (order.paymentStatus === "failed") return "Paystack · Failed";
-  return "Paystack · Awaiting";
+  if (order.paymentStatus === "paid") return "Paid";
+  if (order.paymentStatus === "failed") return "Payment failed";
+  return "Awaiting payment";
 }
 
 function itemSummary(order: OrderDto) {

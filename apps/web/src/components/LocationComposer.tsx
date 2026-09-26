@@ -184,7 +184,7 @@ export function LocationComposer({
           <input
             value={landmark}
             onChange={(e) => onLandmarkChange?.(e.target.value)}
-            placeholder="Near Canada Junction…"
+            placeholder="Near Achiaman…"
             className="w-full rounded-card bg-white px-4 py-3 text-sm text-ink shadow-soft ring-1 ring-black/[0.04] focus:outline-none focus:ring-2 focus:ring-rubies-red/30"
           />
         </label>

@@ -22,14 +22,15 @@ export function BottomNav({
   const pathname = usePathname();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-black/5 bg-cream/95 backdrop-blur-md">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-black/5 bg-cream/90 backdrop-blur-xl supports-[backdrop-filter]:bg-cream/80">
+      <div className="pointer-events-none absolute inset-x-0 -top-8 h-8 bg-gradient-to-t from-cream/80 to-transparent" aria-hidden />
       <div className="relative mx-auto flex max-w-md items-end justify-between px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2">
         {tabs.slice(0, 2).map((tab) => (
           <NavTab key={tab.href} {...tab} active={pathname === tab.href} />
         ))}
 
         <div className="relative -mt-7 flex w-[4.5rem] justify-center">
-          <div className="flex gap-1 rounded-full bg-white p-1 shadow-soft ring-1 ring-black/[0.06]">
+          <div className="flex gap-1 rounded-full bg-white/95 p-1 shadow-soft ring-1 ring-black/[0.06] backdrop-blur-md">
             <a
               href={`tel:${phone}`}
               aria-label="Call Rubies Cuisine"
@@ -75,8 +76,8 @@ function NavTab({
   return (
     <Link
       href={href}
-      className={`flex w-14 flex-col items-center gap-1 py-1 text-[11px] font-medium transition ${
-        active ? "text-rubies-red" : "text-muted"
+      className={`flex w-14 flex-col items-center gap-1 py-1 text-[11px] font-semibold transition ${
+        active ? "text-rubies-red" : "text-ink/70"
       }`}
     >
       <Icon />

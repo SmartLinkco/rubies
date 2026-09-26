@@ -90,8 +90,8 @@ function paymentLabel(order: OrderDto) {
   if (order.paymentMethod === "cod") {
     return order.paymentStatus === "paid" ? "COD · Paid" : "COD · Unpaid";
   }
-  if (order.paymentStatus === "paid") return "Paystack · Paid";
-  return "Paystack";
+  if (order.paymentStatus === "paid") return "Paid online";
+  return "Pay now · unpaid";
 }
 
 export default function AdminOrdersPage() {

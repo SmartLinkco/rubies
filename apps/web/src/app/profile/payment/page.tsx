@@ -14,10 +14,10 @@ export default async function PaymentPage() {
           ← Profile
         </Link>
         <div className="mt-4 rounded-[24px] bg-white p-5 shadow-soft">
-          <p className="font-semibold text-ink">COD and Paystack</p>
+          <p className="font-semibold text-ink">Cash or pay now</p>
           <p className="mt-2 text-sm text-muted">
-            Pay cash on delivery or with Paystack (GHS) at checkout. Set your default
-            preference in Settings.
+            Pay cash on delivery, or pay securely online at checkout. Set your
+            default preference in Settings.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <Link

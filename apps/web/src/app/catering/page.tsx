@@ -52,6 +52,7 @@ function CateringForm() {
           : null,
         guestCount: guestCount ? Number(guestCount) : null,
         message: message.trim(),
+        kind: "catering",
       });
       setDone(true);
       toast(result.message);

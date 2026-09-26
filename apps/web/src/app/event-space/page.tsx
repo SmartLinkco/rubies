@@ -52,7 +52,8 @@ function EventSpaceForm() {
           ? new Date(`${eventDate}T12:00:00.000Z`).toISOString()
           : null,
         guestCount: guestCount ? Number(guestCount) : null,
-        message: `[Event space booking]\n${details}`,
+        message: details,
+        kind: "event-space",
       });
       setDone(true);
       toast(result.message);
