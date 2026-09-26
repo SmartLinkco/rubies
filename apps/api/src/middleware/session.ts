@@ -31,3 +31,15 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction) {
   }
   next();
 }
+
+export function requireAdmin(req: Request, _res: Response, next: NextFunction) {
+  if (!req.authUser) {
+    next(new AppError(401, "UNAUTHORIZED", "Sign in required"));
+    return;
+  }
+  if (req.authUser.role !== "admin") {
+    next(new AppError(403, "FORBIDDEN", "Admin access required"));
+    return;
+  }
+  next();
+}

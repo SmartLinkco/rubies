@@ -1,5 +1,6 @@
 import { brand } from "@rubies/shared";
 import { AppShell } from "@/components/AppShell";
+import { CateringHomeSection } from "@/components/CateringHomeSection";
 import { ClosedBanner } from "@/components/ClosedBanner";
 import { DeliveryHeroCard } from "@/components/DeliveryHero";
 import { MenuExplorer } from "@/components/MenuExplorer";
@@ -38,6 +39,8 @@ export default async function HomePage() {
         </div>
 
         <PopularDishesRail items={recommended} canOrder={accepting} />
+
+        <CateringHomeSection />
 
         <section className="mt-8">
           <h2 className="mb-3 text-xl font-bold text-ink">Explore dishes</h2>

@@ -6,11 +6,6 @@ export const dynamic = "force-dynamic";
 
 const stubs = [
   {
-    slug: "coupons",
-    title: "My Coupons",
-    body: "Promo codes and offers arrive in Phase 5.",
-  },
-  {
     slug: "notifications",
     title: "Notifications",
     body: "Order alerts will land here once SMS/email are wired in Phase 7.",
@@ -33,6 +28,31 @@ export default async function ProfileStubPage({
 }) {
   const { section } = await params;
   const restaurant = await getRestaurant();
+
+  if (section === "coupons") {
+    return (
+      <AppShell restaurant={restaurant} title="My Coupons" tagline="Profile">
+        <div className="px-4">
+          <Link href="/profile" className="text-sm font-medium text-muted">
+            ← Profile
+          </Link>
+          <div className="mt-4 rounded-[24px] bg-white p-5 shadow-soft">
+            <p className="font-semibold text-ink">Active offers</p>
+            <p className="mt-2 text-sm text-muted">
+              Browse current promo codes and apply them at checkout.
+            </p>
+            <Link
+              href="/offers"
+              className="mt-4 inline-flex rounded-full bg-rubies-red px-5 py-2.5 text-sm font-semibold text-white"
+            >
+              View offers
+            </Link>
+          </div>
+        </div>
+      </AppShell>
+    );
+  }
+
   const stub = stubs.find((s) => s.slug === section) ?? stubs[0]!;
 
   return (

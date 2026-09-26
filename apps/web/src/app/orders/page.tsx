@@ -1,9 +1,9 @@
 "use client";
 
-import type { OrderDto, OrderStatus, PaymentMethod, PaymentStatus } from "@rubies/shared";
+import type { OrderDto, OrderStatus } from "@rubies/shared";
 import { brand } from "@rubies/shared";
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/components/AuthProvider";
 import { clientApi } from "@/lib/client-api";
@@ -27,12 +27,19 @@ const STATUS_STYLE: Record<OrderStatus, string> = {
   cancelled: "bg-black/10 text-muted",
 };
 
-function paymentLabel(method: PaymentMethod, status: PaymentStatus) {
-  if (method === "cod") {
-    return status === "paid" ? "COD · Paid" : "Cash on delivery";
+const ACTIVE: OrderStatus[] = [
+  "pending_confirmation",
+  "confirmed",
+  "preparing",
+  "on_the_way",
+];
+
+function paymentLabel(order: OrderDto) {
+  if (order.paymentMethod === "cod") {
+    return order.paymentStatus === "paid" ? "COD · Paid" : "Cash on delivery";
   }
-  if (status === "paid") return "Paystack · Paid";
-  if (status === "failed") return "Paystack · Failed";
+  if (order.paymentStatus === "paid") return "Paystack · Paid";
+  if (order.paymentStatus === "failed") return "Paystack · Failed";
   return "Paystack · Awaiting";
 }
 
@@ -75,6 +82,7 @@ export default function OrdersPage() {
 function OrdersList() {
   const { user, loading } = useAuth();
   const [orders, setOrders] = useState<OrderDto[] | null>(null);
+  const [tab, setTab] = useState<"active" | "past">("active");
 
   useEffect(() => {
     if (!user) {
@@ -86,6 +94,19 @@ function OrdersList() {
       .then(setOrders)
       .catch(() => setOrders([]));
   }, [user]);
+
+  const active = useMemo(
+    () => (orders ?? []).filter((o) => ACTIVE.includes(o.status)),
+    [orders],
+  );
+  const past = useMemo(
+    () =>
+      (orders ?? []).filter(
+        (o) => o.status === "delivered" || o.status === "cancelled",
+      ),
+    [orders],
+  );
+  const visible = tab === "active" ? active : past;
 
   if (loading || orders === null) {
     return (
@@ -134,19 +155,55 @@ function OrdersList() {
 
   return (
     <div className="px-4 pb-4">
-      <ul className="mt-4 space-y-3">
-        {orders.map((order) => (
-          <li key={order.id}>
-            <OrderCard order={order} />
-          </li>
-        ))}
-      </ul>
+      <div className="mt-4 flex gap-2">
+        <TabButton active={tab === "active"} onClick={() => setTab("active")}>
+          Active ({active.length})
+        </TabButton>
+        <TabButton active={tab === "past"} onClick={() => setTab("past")}>
+          Past ({past.length})
+        </TabButton>
+      </div>
+
+      {visible.length === 0 ? (
+        <div className="mt-6 rounded-card bg-white/80 px-4 py-10 text-center text-sm text-muted shadow-soft">
+          No {tab} orders.
+        </div>
+      ) : (
+        <ul className="mt-4 space-y-3">
+          {visible.map((order) => (
+            <li key={order.id}>
+              <OrderCard order={order} />
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
 
+function TabButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+        active ? "bg-rubies-red text-white" : "bg-cream-deep text-muted"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
 function OrderCard({ order }: { order: OrderDto }) {
-  const status = order.status;
   const itemCount = order.items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
@@ -160,9 +217,9 @@ function OrderCard({ order }: { order: OrderDto }) {
           <p className="mt-0.5 text-xs text-muted">{formatOrderDate(order.createdAt)}</p>
         </div>
         <span
-          className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold ${STATUS_STYLE[status]}`}
+          className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold ${STATUS_STYLE[order.status]}`}
         >
-          {STATUS_LABEL[status]}
+          {STATUS_LABEL[order.status]}
         </span>
       </div>
 
@@ -172,7 +229,7 @@ function OrderCard({ order }: { order: OrderDto }) {
         <StatChip>
           {itemCount} {itemCount === 1 ? "item" : "items"}
         </StatChip>
-        <StatChip>{paymentLabel(order.paymentMethod, order.paymentStatus)}</StatChip>
+        <StatChip>{paymentLabel(order)}</StatChip>
         <StatChip>Delivery {formatGhs(order.deliveryFeeGhs)}</StatChip>
       </div>
 

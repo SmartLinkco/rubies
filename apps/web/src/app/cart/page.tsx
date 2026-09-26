@@ -119,13 +119,16 @@ export default function CartPage() {
               <label className="block text-xs font-medium text-muted" htmlFor="promo">
                 Promo code
               </label>
-              <input
-                id="promo"
-                type="text"
-                disabled
-                placeholder="Coming soon"
-                className="mt-1.5 w-full rounded-full border border-black/10 bg-white/70 px-4 py-2.5 text-sm text-muted"
-              />
+              <p className="mt-1.5 text-sm text-muted">
+                Apply codes like <span className="font-semibold text-ink">RUBIES10</span> at{" "}
+                <Link href="/checkout" className="font-medium text-rubies-blue">
+                  checkout
+                </Link>
+                .{" "}
+                <Link href="/offers" className="font-medium text-rubies-blue">
+                  See offers
+                </Link>
+              </p>
             </div>
 
             <Link

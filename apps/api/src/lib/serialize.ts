@@ -5,6 +5,7 @@ import type {
   Order,
   OrderItem,
   OrderStatusEvent,
+  Review,
   User,
 } from "@prisma/client";
 import type {
@@ -14,6 +15,7 @@ import type {
   OrderDto,
   OrderItemDto,
   OrderStatusEventDto,
+  ReviewDto,
   UserDto,
 } from "@rubies/shared";
 
@@ -72,9 +74,20 @@ export function toCartDto(cart: CartWithItems): CartDto {
   return { id: cart.id, items, subtotalGhs };
 }
 
+export function toReviewDto(review: Review): ReviewDto {
+  return {
+    id: review.id,
+    orderId: review.orderId,
+    rating: review.rating,
+    comment: review.comment,
+    createdAt: review.createdAt.toISOString(),
+  };
+}
+
 type OrderWithRelations = Order & {
   items: OrderItem[];
   statusEvents: OrderStatusEvent[];
+  review?: Review | null;
 };
 
 export function toOrderDto(
@@ -96,6 +109,8 @@ export function toOrderDto(
     createdAt: event.createdAt.toISOString(),
   }));
 
+  const review = order.review ? toReviewDto(order.review) : null;
+
   return {
     id: order.id,
     orderNumber: order.orderNumber,
@@ -116,5 +131,7 @@ export function toOrderDto(
     items,
     statusEvents,
     paystackAuthorizationUrl: extras?.paystackAuthorizationUrl ?? null,
+    review,
+    canReview: order.status === "delivered" && !review,
   };
 }

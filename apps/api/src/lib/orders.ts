@@ -1,16 +1,26 @@
 import { randomBytes } from "node:crypto";
-import type { PaymentMethod, Prisma } from "@prisma/client";
-import type { PlaceOrderInput, PlaceOrderResult } from "@rubies/shared";
+import type { OrderStatus, PaymentMethod, Prisma } from "@prisma/client";
+import type { PlaceOrderInput, PlaceOrderResult, ReviewDto } from "@rubies/shared";
 import { getOrCreateCart } from "./cart.js";
 import { quoteDeliveryFee, requireInRange } from "./delivery-fee.js";
+import { notifyOrderStatusChange } from "./notify.js";
+import { resolveOfferForCheckout } from "./offers.js";
 import {
   initializePaystackTransaction,
   paystackMockMode,
 } from "./paystack.js";
 import { prisma } from "./prisma.js";
-import { toOrderDto } from "./serialize.js";
+import { toOrderDto, toReviewDto } from "./serialize.js";
 import { evaluateAcceptingOrders } from "./hours.js";
 import { AppError } from "../middleware/error.js";
+
+const STATUS_FLOW: OrderStatus[] = [
+  "pending_confirmation",
+  "confirmed",
+  "preparing",
+  "on_the_way",
+  "delivered",
+];
 
 function generateOrderNumber() {
   const stamp = Date.now().toString(36).toUpperCase();
@@ -22,23 +32,23 @@ function generatePaystackReference(orderNumber: string) {
   return orderNumber.replace(/[^A-Za-z0-9]/g, "").toLowerCase();
 }
 
+const orderInclude = {
+  items: true,
+  statusEvents: { orderBy: { createdAt: "asc" as const } },
+  review: true,
+} as const;
+
 async function loadOrder(orderId: string) {
   return prisma.order.findUniqueOrThrow({
     where: { id: orderId },
-    include: {
-      items: true,
-      statusEvents: { orderBy: { createdAt: "asc" } },
-    },
+    include: orderInclude,
   });
 }
 
 export async function getOrderByNumber(orderNumber: string) {
   const order = await prisma.order.findUnique({
     where: { orderNumber },
-    include: {
-      items: true,
-      statusEvents: { orderBy: { createdAt: "asc" } },
-    },
+    include: orderInclude,
   });
   if (!order) {
     throw new AppError(404, "ORDER_NOT_FOUND", "Order not found");
@@ -49,14 +59,142 @@ export async function getOrderByNumber(orderNumber: string) {
 export async function listOrdersForUser(userId: string) {
   const orders = await prisma.order.findMany({
     where: { userId },
-    include: {
-      items: true,
-      statusEvents: { orderBy: { createdAt: "asc" } },
-    },
+    include: orderInclude,
     orderBy: { createdAt: "desc" },
     take: 50,
   });
   return orders.map((order) => toOrderDto(order));
+}
+
+export async function listAllOrders(limit = 50) {
+  const orders = await prisma.order.findMany({
+    include: orderInclude,
+    orderBy: { createdAt: "desc" },
+    take: limit,
+  });
+  return orders.map((order) => toOrderDto(order));
+}
+
+function assertStatusTransition(from: OrderStatus, to: OrderStatus) {
+  if (from === to) {
+    throw new AppError(400, "STATUS_UNCHANGED", "Order is already in this status");
+  }
+  if (from === "cancelled" || from === "delivered") {
+    throw new AppError(400, "STATUS_LOCKED", "This order can no longer change status");
+  }
+  if (to === "cancelled") return;
+
+  const fromIndex = STATUS_FLOW.indexOf(from);
+  const toIndex = STATUS_FLOW.indexOf(to);
+  if (fromIndex < 0 || toIndex < 0 || toIndex !== fromIndex + 1) {
+    throw new AppError(
+      400,
+      "INVALID_TRANSITION",
+      `Cannot move from ${from} to ${to}`,
+    );
+  }
+}
+
+export async function updateOrderStatus(opts: {
+  orderNumber: string;
+  status: OrderStatus;
+  note?: string | null;
+  markCodPaid?: boolean;
+}) {
+  const existing = await prisma.order.findUnique({
+    where: { orderNumber: opts.orderNumber },
+    include: { user: true },
+  });
+  if (!existing) {
+    throw new AppError(404, "ORDER_NOT_FOUND", "Order not found");
+  }
+
+  assertStatusTransition(existing.status, opts.status);
+
+  const settings = await prisma.restaurantSettings.findUnique({
+    where: { id: "default" },
+  });
+
+  await prisma.$transaction(async (tx) => {
+    await tx.order.update({
+      where: { id: existing.id },
+      data: {
+        status: opts.status,
+        ...(opts.markCodPaid &&
+        existing.paymentMethod === "cod" &&
+        existing.paymentStatus !== "paid"
+          ? { paymentStatus: "paid" }
+          : {}),
+      },
+    });
+
+    if (
+      opts.markCodPaid &&
+      existing.paymentMethod === "cod" &&
+      existing.paymentStatus !== "paid"
+    ) {
+      await tx.payment.updateMany({
+        where: { orderId: existing.id },
+        data: { status: "paid" },
+      });
+    }
+
+    await tx.orderStatusEvent.create({
+      data: {
+        orderId: existing.id,
+        status: opts.status,
+        note: opts.note?.trim() || `Status set to ${opts.status.replace(/_/g, " ")}`,
+      },
+    });
+  });
+
+  await notifyOrderStatusChange({
+    orderNumber: existing.orderNumber,
+    status: opts.status,
+    customerPhone: existing.guestPhone ?? existing.user?.phone,
+    customerEmail: existing.user?.email,
+    ownerPhones: settings?.ownerPhones ?? [],
+    ownerEmails: settings?.ownerEmails ?? [],
+    notifyCustomer: true,
+    notifyOwner: opts.status === "pending_confirmation",
+  });
+
+  return toOrderDto(await loadOrder(existing.id));
+}
+
+export async function createReview(opts: {
+  orderNumber: string;
+  userId?: string;
+  rating: number;
+  comment?: string | null;
+}): Promise<ReviewDto> {
+  const order = await prisma.order.findUnique({
+    where: { orderNumber: opts.orderNumber },
+    include: { review: true },
+  });
+  if (!order) {
+    throw new AppError(404, "ORDER_NOT_FOUND", "Order not found");
+  }
+  if (order.status !== "delivered") {
+    throw new AppError(400, "NOT_DELIVERED", "Reviews are only open after delivery");
+  }
+  if (order.review) {
+    throw new AppError(409, "REVIEW_EXISTS", "This order was already reviewed");
+  }
+  if (opts.userId && order.userId && order.userId !== opts.userId) {
+    throw new AppError(403, "FORBIDDEN", "You can only review your own orders");
+  }
+
+  const review = await prisma.review.create({
+    data: {
+      orderId: order.id,
+      userId: opts.userId ?? order.userId,
+      rating: opts.rating,
+      comment: opts.comment?.trim() || null,
+    },
+  });
+
+  return toReviewDto(review);
 }
 
 export async function placeOrder(opts: {
@@ -164,18 +302,17 @@ export async function placeOrder(opts: {
   });
   requireInRange(quote);
 
-  // Promo codes wire in Phase 5 — accept field but do not discount yet
-  if (opts.input.promoCode?.trim()) {
-    // intentionally ignored until offers are live
-  }
-
   const subtotalGhs = cart.items.reduce(
     (sum, line) => sum + Number(line.menuItem.priceGhs) * line.quantity,
     0,
   );
-  const discountGhs = 0;
+  const { offer, discountGhs } = await resolveOfferForCheckout({
+    code: opts.input.promoCode,
+    subtotalGhs,
+  });
   const deliveryFeeGhs = quote.deliveryFeeGhs;
-  const totalGhs = Math.round((subtotalGhs + deliveryFeeGhs - discountGhs) * 100) / 100;
+  const totalGhs =
+    Math.round((subtotalGhs + deliveryFeeGhs - discountGhs) * 100) / 100;
 
   const paymentMethod = opts.input.paymentMethod as PaymentMethod;
   const orderNumber = generateOrderNumber();
@@ -201,7 +338,8 @@ export async function placeOrder(opts: {
           subtotalGhs,
           deliveryFeeGhs,
           discountGhs,
-          totalGhs,
+          totalGhs: Math.max(0, totalGhs),
+          offerId: offer?.id ?? null,
           notes: opts.input.notes?.trim() || null,
           items: {
             create: cart.items.map((line) => ({
@@ -223,7 +361,7 @@ export async function placeOrder(opts: {
               status: "pending",
               provider: paymentMethod === "paystack" ? "paystack" : null,
               providerRef: paymentMethod === "paystack" ? paystackRef : null,
-              amountGhs: totalGhs,
+              amountGhs: Math.max(0, totalGhs),
             },
           },
         },
@@ -252,7 +390,7 @@ export async function placeOrder(opts: {
 
     const init = await initializePaystackTransaction({
       email,
-      amountGhs: totalGhs,
+      amountGhs: Math.max(0, totalGhs),
       reference: paystackRef,
       callbackUrl: `${webOrigin}/orders/${order.orderNumber}?paid=1`,
       metadata: {
@@ -274,6 +412,17 @@ export async function placeOrder(opts: {
       },
     });
   }
+
+  await notifyOrderStatusChange({
+    orderNumber: order.orderNumber,
+    status: "pending_confirmation",
+    customerPhone: guestPhone,
+    customerEmail: contactEmail,
+    ownerPhones: settings.ownerPhones,
+    ownerEmails: settings.ownerEmails,
+    notifyCustomer: true,
+    notifyOwner: true,
+  });
 
   return {
     order: toOrderDto(await loadOrder(order.id), {

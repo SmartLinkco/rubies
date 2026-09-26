@@ -4,11 +4,14 @@ import cors from "cors";
 import express from "express";
 import { errorHandler, notFound } from "./middleware/error.js";
 import { attachSession } from "./middleware/session.js";
+import { adminRouter } from "./routes/admin.js";
 import { authRouter } from "./routes/auth.js";
 import { cartRouter } from "./routes/cart.js";
+import { cateringRouter } from "./routes/catering.js";
 import { healthRouter } from "./routes/health.js";
 import { meRouter } from "./routes/me.js";
 import { menuRouter } from "./routes/menu.js";
+import { offersRouter } from "./routes/offers.js";
 import { ordersRouter } from "./routes/orders.js";
 import {
   paymentsRouter,
@@ -38,7 +41,7 @@ app.use(cookieParser());
 app.use(attachSession);
 
 app.get("/", (_req, res) => {
-  res.json({ data: { name: "Rubies Cuisine API", version: "0.3.0" } });
+  res.json({ data: { name: "Rubies Cuisine API", version: "0.5.0" } });
 });
 
 app.use("/health", healthRouter);
@@ -48,7 +51,10 @@ app.use("/auth", authRouter);
 app.use("/me", meRouter);
 app.use("/cart", cartRouter);
 app.use("/orders", ordersRouter);
+app.use("/offers", offersRouter);
+app.use("/catering", cateringRouter);
 app.use("/payments", paymentsRouter);
+app.use("/admin", adminRouter);
 
 app.use(notFound);
 app.use(errorHandler);

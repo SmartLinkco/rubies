@@ -39,6 +39,9 @@ export function ProfilePanel({
     locked?: boolean;
   }[] = [
     { href: "/orders", label: "My Orders", icon: <OrdersIcon /> },
+    ...(user?.role === "admin"
+      ? [{ href: "/admin/orders", label: "Admin orders", icon: <GearIcon /> }]
+      : []),
     {
       href: user ? "/profile/addresses" : "/login",
       label: "Addresses",
@@ -52,9 +55,19 @@ export function ProfilePanel({
       locked: !user,
     },
     {
-      href: "/profile/coupons",
+      href: "/offers",
       label: "My Coupons",
       icon: <CouponIcon />,
+    },
+    {
+      href: "/catering",
+      label: "Catering & events",
+      icon: <BellIcon />,
+    },
+    {
+      href: "/about",
+      label: "About & contact",
+      icon: <InfoIcon />,
     },
     {
       href: "/profile/notifications",

@@ -47,6 +47,10 @@ function CheckoutForm() {
   const [guestPhone, setGuestPhone] = useState("");
   const [notes, setNotes] = useState("");
   const [promoCode, setPromoCode] = useState("");
+  const [promoTitle, setPromoTitle] = useState<string | null>(null);
+  const [discountGhs, setDiscountGhs] = useState(0);
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [promoBusy, setPromoBusy] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
   const [quote, setQuote] = useState<DeliveryQuoteDto | null>(null);
   const [quotedSubtotal, setQuotedSubtotal] = useState<number | null>(null);
@@ -103,6 +107,10 @@ function CheckoutForm() {
           setQuote(data.quote);
           setQuotedSubtotal(data.subtotalGhs);
           setQuotedTotal(data.totalGhs);
+          // Re-validate promo against new subtotal if one was applied
+          setDiscountGhs(0);
+          setPromoTitle(null);
+          setPromoError(null);
         }
       } catch {
         if (!cancelled) {
@@ -120,8 +128,38 @@ function CheckoutForm() {
   const deliveryFee = quote?.withinRange ? (quote.deliveryFeeGhs ?? 0) : 0;
   const total =
     quotedTotal != null && quote?.withinRange
-      ? quotedTotal
-      : Math.round((displaySubtotal + deliveryFee) * 100) / 100;
+      ? Math.max(0, quotedTotal - discountGhs)
+      : Math.max(
+          0,
+          Math.round((displaySubtotal + deliveryFee - discountGhs) * 100) / 100,
+        );
+
+  async function onApplyPromo() {
+    setPromoError(null);
+    setPromoBusy(true);
+    try {
+      await pushLocalCartToServer();
+      const preview = await clientApi.previewPromo({
+        code: promoCode.trim(),
+        ...quotePayload,
+      });
+      setPromoCode(preview.code);
+      setPromoTitle(preview.title);
+      setDiscountGhs(preview.discountGhs);
+      setQuotedSubtotal(preview.subtotalGhs);
+      setQuotedTotal(preview.subtotalGhs + preview.deliveryFeeGhs);
+      setQuote(preview.quote);
+      toast(`${preview.code} applied · −${formatGhs(preview.discountGhs)}`);
+    } catch (err) {
+      setDiscountGhs(0);
+      setPromoTitle(null);
+      setPromoError(
+        err instanceof ApiRequestError ? err.message : "Could not apply promo",
+      );
+    } finally {
+      setPromoBusy(false);
+    }
+  }
 
   async function onPlaceOrder() {
     setError(null);
@@ -339,13 +377,39 @@ function CheckoutForm() {
           >
             Promo code
           </label>
-          <input
-            id="checkout-promo"
-            value={promoCode}
-            onChange={(e) => setPromoCode(e.target.value)}
-            placeholder="Optional (offers coming soon)"
-            className="mt-1.5 w-full rounded-full border border-black/10 bg-cream px-4 py-2.5 text-sm outline-none focus:border-rubies-blue"
-          />
+          <div className="mt-1.5 flex gap-2">
+            <input
+              id="checkout-promo"
+              value={promoCode}
+              onChange={(e) => {
+                setPromoCode(e.target.value.toUpperCase());
+                setDiscountGhs(0);
+                setPromoTitle(null);
+                setPromoError(null);
+              }}
+              placeholder="e.g. RUBIES10"
+              className="min-w-0 flex-1 rounded-full border border-black/10 bg-cream px-4 py-2.5 text-sm outline-none focus:border-rubies-blue"
+            />
+            <button
+              type="button"
+              disabled={promoBusy || !promoCode.trim()}
+              onClick={() => void onApplyPromo()}
+              className="shrink-0 rounded-full bg-rubies-blue px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {promoBusy ? "…" : "Apply"}
+            </button>
+          </div>
+          {promoTitle && discountGhs > 0 ? (
+            <p className="mt-2 text-xs font-medium text-emerald-800">
+              {promoTitle} · −{formatGhs(discountGhs)}
+            </p>
+          ) : null}
+          {promoError ? (
+            <p className="mt-2 text-xs text-rubies-red">{promoError}</p>
+          ) : null}
+          <Link href="/offers" className="mt-2 inline-block text-xs font-medium text-rubies-blue">
+            Browse offers
+          </Link>
         </section>
 
         <section className="rounded-card bg-white/90 p-4 shadow-soft">
@@ -363,6 +427,14 @@ function CheckoutForm() {
                 : "…"}
             </span>
           </div>
+          {discountGhs > 0 ? (
+            <div className="mt-2 flex items-center justify-between text-sm">
+              <span className="text-muted">Promo</span>
+              <span className="font-semibold text-emerald-800">
+                −{formatGhs(discountGhs)}
+              </span>
+            </div>
+          ) : null}
           {quote?.message ? (
             <p className="mt-2 text-xs text-muted">{quote.message}</p>
           ) : null}

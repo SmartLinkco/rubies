@@ -147,6 +147,8 @@ export interface OrderDto {
   items: OrderItemDto[];
   statusEvents: OrderStatusEventDto[];
   paystackAuthorizationUrl?: string | null;
+  review: ReviewDto | null;
+  canReview: boolean;
 }
 
 export interface DeliveryQuoteDto {
@@ -177,5 +179,44 @@ export interface PlaceOrderInput {
 export interface PlaceOrderResult {
   order: OrderDto;
   authorizationUrl: string | null;
+}
+
+export interface ReviewDto {
+  id: string;
+  orderId: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+}
+
+export interface OfferDto {
+  id: string;
+  code: string;
+  title: string;
+  description: string;
+  percentOff: number | null;
+  amountOffGhs: number | null;
+  minOrderGhs: number;
+  expiresAt: string | null;
+  active: boolean;
+}
+
+export interface PromoPreviewDto {
+  code: string;
+  title: string;
+  discountGhs: number;
+  subtotalGhs: number;
+  deliveryFeeGhs: number;
+  totalGhs: number;
+  message: string | null;
+}
+
+export interface CateringInquiryInput {
+  name: string;
+  phone: string;
+  email?: string | null;
+  eventDate?: string | null;
+  guestCount?: number | null;
+  message: string;
 }
 

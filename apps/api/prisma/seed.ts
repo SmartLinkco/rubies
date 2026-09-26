@@ -100,9 +100,53 @@ async function main() {
     },
   });
 
+  const offers = [
+    {
+      code: "RUBIES10",
+      title: "GHS 10 off",
+      description: "Save GHS 10 on orders of GHS 45 or more.",
+      percentOff: null as number | null,
+      amountOffGhs: 10,
+      minOrderGhs: 45,
+    },
+    {
+      code: "HUNGRY15",
+      title: "15% off",
+      description: "Fifteen percent off food subtotal. Min GHS 90.",
+      percentOff: 15,
+      amountOffGhs: null as number | null,
+      minOrderGhs: 90,
+    },
+  ];
+
+  for (const offer of offers) {
+    await prisma.offer.upsert({
+      where: { code: offer.code },
+      create: {
+        code: offer.code,
+        title: offer.title,
+        description: offer.description,
+        percentOff: offer.percentOff,
+        amountOffGhs: offer.amountOffGhs,
+        minOrderGhs: offer.minOrderGhs,
+        active: true,
+        expiresAt: null,
+      },
+      update: {
+        title: offer.title,
+        description: offer.description,
+        percentOff: offer.percentOff,
+        amountOffGhs: offer.amountOffGhs,
+        minOrderGhs: offer.minOrderGhs,
+        active: true,
+      },
+    });
+  }
+
   console.log(
-    `Seed complete: restaurant settings, 4 menu items @ GHS 45, admin ${adminEmail}`,
-  );}
+    `Seed complete: restaurant settings, 4 menu items @ GHS 45, offers ${offers.map((o) => o.code).join(", ")}, admin ${adminEmail}`,
+  );
+}
 
 main()
   .catch((e) => {

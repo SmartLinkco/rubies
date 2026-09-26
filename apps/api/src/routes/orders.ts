@@ -4,6 +4,7 @@ import type { PlaceOrderInput } from "@rubies/shared";
 import { getOrCreateCart } from "../lib/cart.js";
 import { quoteDeliveryFee } from "../lib/delivery-fee.js";
 import {
+  createReview,
   getOrderByNumber,
   listOrdersForUser,
   placeOrder,
@@ -37,6 +38,11 @@ const quoteSchema = z.object({
   addressId: z.string().min(1).optional(),
   lat: z.number().finite().optional().nullable(),
   lng: z.number().finite().optional().nullable(),
+});
+
+const reviewSchema = z.object({
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().max(500).optional().nullable(),
 });
 
 ordersRouter.post("/quote", async (req, res) => {
@@ -107,6 +113,22 @@ ordersRouter.post("/", async (req, res) => {
 ordersRouter.get("/mine", requireAuth, async (req, res) => {
   const orders = await listOrdersForUser(req.authUser!.id);
   res.json({ data: orders });
+});
+
+ordersRouter.post("/:orderNumber/review", async (req, res) => {
+  const parsed = reviewSchema.safeParse(req.body ?? {});
+  if (!parsed.success) {
+    throw new AppError(400, "VALIDATION_ERROR", "Invalid review", parsed.error.flatten());
+  }
+
+  const review = await createReview({
+    orderNumber: req.params.orderNumber,
+    userId: req.authUser?.id,
+    rating: parsed.data.rating,
+    comment: parsed.data.comment,
+  });
+
+  res.status(201).json({ data: review });
 });
 
 ordersRouter.get("/:orderNumber", async (req, res) => {

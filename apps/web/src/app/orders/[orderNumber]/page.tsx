@@ -3,11 +3,12 @@
 import type { OrderDto, OrderStatus } from "@rubies/shared";
 import { brand } from "@rubies/shared";
 import Link from "next/link";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { useToast } from "@/components/ToastProvider";
 import { ApiRequestError, clientApi } from "@/lib/client-api";
+import { applyServerCart } from "@/lib/cart";
 import { formatGhs } from "@/lib/format";
 
 const STATUS_STEPS: OrderStatus[] = [
@@ -58,12 +59,23 @@ export default function OrderDetailPage() {
 function OrderDetailInner() {
   const params = useParams<{ orderNumber: string }>();
   const search = useSearchParams();
+  const router = useRouter();
   const { toast } = useToast();
   const orderNumber = decodeURIComponent(params.orderNumber);
   const [order, setOrder] = useState<OrderDto | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [completing, setCompleting] = useState(false);
+  const [reordering, setReordering] = useState(false);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
+  const [reviewBusy, setReviewBusy] = useState(false);
   const paymentAttempted = useRef(false);
+
+  async function refresh() {
+    const data = await clientApi.getOrder(orderNumber);
+    setOrder(data);
+    return data;
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -83,6 +95,18 @@ function OrderDetailInner() {
       cancelled = true;
     };
   }, [orderNumber]);
+
+  // Light polling while order is active
+  useEffect(() => {
+    if (!order) return;
+    if (order.status === "delivered" || order.status === "cancelled") return;
+    const id = window.setInterval(() => {
+      void refresh().catch(() => {
+        /* ignore */
+      });
+    }, 12000);
+    return () => window.clearInterval(id);
+  }, [order?.status, orderNumber]);
 
   useEffect(() => {
     if (!order || paymentAttempted.current) return;
@@ -110,6 +134,48 @@ function OrderDetailInner() {
       })
       .finally(() => setCompleting(false));
   }, [order, search, toast]);
+
+  async function onReorder() {
+    if (!order) return;
+    setReordering(true);
+    try {
+      const items = order.items
+        .filter((item) => item.menuItemId)
+        .map((item) => ({
+          menuItemId: item.menuItemId!,
+          quantity: item.quantity,
+        }));
+      if (!items.length) {
+        toast("Items are no longer available");
+        return;
+      }
+      const cart = await clientApi.replaceCart(items);
+      applyServerCart(cart);
+      toast("Items added to cart");
+      router.push("/cart");
+    } catch (err) {
+      toast(err instanceof ApiRequestError ? err.message : "Could not reorder");
+    } finally {
+      setReordering(false);
+    }
+  }
+
+  async function onSubmitReview() {
+    if (!order) return;
+    setReviewBusy(true);
+    try {
+      await clientApi.submitReview(order.orderNumber, {
+        rating,
+        comment: comment.trim() || null,
+      });
+      await refresh();
+      toast("Thanks for your review");
+    } catch (err) {
+      toast(err instanceof ApiRequestError ? err.message : "Could not save review");
+    } finally {
+      setReviewBusy(false);
+    }
+  }
 
   return (
     <AppShell
@@ -157,19 +223,21 @@ function OrderDetailInner() {
             </section>
 
             <section className="rounded-card bg-white/90 p-4 shadow-soft">
-              <h2 className="text-sm font-semibold text-ink">Status</h2>
+              <h2 className="text-sm font-semibold text-ink">Timeline</h2>
               <ol className="mt-4 space-y-3">
                 {STATUS_STEPS.map((step, index) => {
+                  const event = order.statusEvents.find((e) => e.status === step);
                   const currentIndex = STATUS_STEPS.indexOf(
                     order.status === "cancelled"
                       ? "pending_confirmation"
                       : order.status,
                   );
                   const done = order.status !== "cancelled" && index <= currentIndex;
+                  const current = order.status === step;
                   return (
-                    <li key={step} className="flex items-center gap-3">
+                    <li key={step} className="flex items-start gap-3">
                       <span
-                        className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
+                        className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
                           done
                             ? "bg-rubies-red text-white"
                             : "bg-cream-deep text-muted"
@@ -177,11 +245,30 @@ function OrderDetailInner() {
                       >
                         {done ? "✓" : index + 1}
                       </span>
-                      <span
-                        className={`text-sm ${done ? "font-semibold text-ink" : "text-muted"}`}
-                      >
-                        {STATUS_LABEL[step]}
-                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p
+                          className={`text-sm ${
+                            current
+                              ? "font-semibold text-ink"
+                              : done
+                                ? "font-medium text-ink"
+                                : "text-muted"
+                          }`}
+                        >
+                          {STATUS_LABEL[step]}
+                        </p>
+                        {event ? (
+                          <p className="mt-0.5 text-xs text-muted">
+                            {event.note ? `${event.note} · ` : ""}
+                            {new Date(event.createdAt).toLocaleString(undefined, {
+                              day: "2-digit",
+                              month: "short",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </p>
+                        ) : null}
+                      </div>
                     </li>
                   );
                 })}
@@ -217,6 +304,12 @@ function OrderDetailInner() {
                   <span>Delivery</span>
                   <span>{formatGhs(order.deliveryFeeGhs)}</span>
                 </div>
+                {order.discountGhs > 0 ? (
+                  <div className="flex justify-between text-emerald-800">
+                    <span>Promo</span>
+                    <span>−{formatGhs(order.discountGhs)}</span>
+                  </div>
+                ) : null}
                 <div className="flex justify-between font-semibold text-ink">
                   <span>Total</span>
                   <span>{formatGhs(order.totalGhs)}</span>
@@ -233,12 +326,65 @@ function OrderDetailInner() {
               <p className="text-xs text-muted">{order.deliveryCity}</p>
             </section>
 
-            <Link
-              href="/menu"
-              className="flex w-full items-center justify-center rounded-full bg-rubies-red px-4 py-3.5 text-sm font-semibold text-white"
+            {order.review ? (
+              <section className="rounded-card bg-white/90 p-4 shadow-soft">
+                <h2 className="text-sm font-semibold text-ink">Your review</h2>
+                <p className="mt-2 text-sm text-ink">
+                  {"★".repeat(order.review.rating)}
+                  {"☆".repeat(5 - order.review.rating)}
+                </p>
+                {order.review.comment ? (
+                  <p className="mt-2 text-sm text-muted">{order.review.comment}</p>
+                ) : null}
+              </section>
+            ) : null}
+
+            {order.canReview ? (
+              <section className="rounded-card bg-white/90 p-4 shadow-soft">
+                <h2 className="text-sm font-semibold text-ink">Rate this order</h2>
+                <div className="mt-3 flex gap-2">
+                  {[1, 2, 3, 4, 5].map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setRating(value)}
+                      className={`h-10 w-10 rounded-full text-sm font-bold ${
+                        rating >= value
+                          ? "bg-rubies-red text-white"
+                          : "bg-cream-deep text-muted"
+                      }`}
+                      aria-label={`${value} stars`}
+                    >
+                      {value}
+                    </button>
+                  ))}
+                </div>
+                <textarea
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  rows={2}
+                  placeholder="Optional short comment"
+                  className="mt-3 w-full resize-none rounded-2xl border border-black/10 bg-cream px-4 py-3 text-sm outline-none focus:border-rubies-blue"
+                />
+                <button
+                  type="button"
+                  disabled={reviewBusy}
+                  onClick={() => void onSubmitReview()}
+                  className="mt-3 w-full rounded-full bg-rubies-blue px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
+                >
+                  {reviewBusy ? "Sending…" : "Submit review"}
+                </button>
+              </section>
+            ) : null}
+
+            <button
+              type="button"
+              disabled={reordering}
+              onClick={() => void onReorder()}
+              className="flex w-full items-center justify-center rounded-full bg-rubies-red px-4 py-3.5 text-sm font-semibold text-white disabled:opacity-60"
             >
-              Order again
-            </Link>
+              {reordering ? "Adding to cart…" : "Reorder"}
+            </button>
           </div>
         )}
       </div>

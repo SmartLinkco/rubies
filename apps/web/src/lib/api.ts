@@ -1,4 +1,4 @@
-import type { MenuItemDto, RestaurantPublicDto } from "@rubies/shared";
+import type { MenuItemDto, OfferDto, RestaurantPublicDto } from "@rubies/shared";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -26,4 +26,8 @@ export function getMenu() {
 
 export function getMenuItem(slug: string) {
   return apiGet<MenuItemDto>(`/menu/${encodeURIComponent(slug)}`);
+}
+
+export function getOffers() {
+  return apiGet<OfferDto[]>("/offers");
 }

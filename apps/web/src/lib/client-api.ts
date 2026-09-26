@@ -1,10 +1,15 @@
 import type {
   AddressDto,
   CartDto,
+  CateringInquiryInput,
   DeliveryQuoteDto,
+  OfferDto,
   OrderDto,
+  OrderStatus,
   PlaceOrderInput,
   PlaceOrderResult,
+  PromoPreviewDto,
+  ReviewDto,
   UserDto,
 } from "@rubies/shared";
 
@@ -130,9 +135,61 @@ export const clientApi = {
   getOrder: (orderNumber: string) =>
     request<OrderDto>(`/orders/${encodeURIComponent(orderNumber)}`),
   listMyOrders: () => request<OrderDto[]>("/orders/mine"),
+  submitReview: (
+    orderNumber: string,
+    body: { rating: number; comment?: string | null },
+  ) =>
+    request<ReviewDto>(`/orders/${encodeURIComponent(orderNumber)}/review`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
   completePaystack: (reference: string) =>
     request<OrderDto>("/payments/paystack/complete", {
       method: "POST",
       body: JSON.stringify({ reference }),
     }),
+  listAdminOrders: () => request<OrderDto[]>("/admin/orders"),
+  updateOrderStatus: (
+    orderNumber: string,
+    body: { status: OrderStatus; note?: string | null; markCodPaid?: boolean },
+  ) =>
+    request<OrderDto>(
+      `/admin/orders/${encodeURIComponent(orderNumber)}/status`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(body),
+      },
+    ),
+  listOffers: () => request<OfferDto[]>("/offers"),
+  getOffer: (code: string) =>
+    request<OfferDto>(`/offers/${encodeURIComponent(code)}`),
+  previewPromo: (body: {
+    code: string;
+    addressId?: string;
+    lat?: number | null;
+    lng?: number | null;
+  }) =>
+    request<PromoPreviewDto & { quote: DeliveryQuoteDto }>("/offers/preview", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  submitCatering: (body: CateringInquiryInput) =>
+    request<{ id: string; status: string; message: string }>("/catering", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  listCateringInbox: () =>
+    request<
+      {
+        id: string;
+        name: string;
+        phone: string;
+        email: string | null;
+        eventDate: string | null;
+        guestCount: number | null;
+        message: string;
+        status: string;
+        createdAt: string;
+      }[]
+    >("/catering/inbox"),
 };
