@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { AuthProvider } from "@/components/AuthProvider";
+import { PushOptInPrompt, PushServiceWorkerBoot } from "@/components/PushOptInPrompt";
 import { ToastProvider } from "@/components/ToastProvider";
 import "./globals.css";
 
@@ -16,6 +17,11 @@ export const metadata: Metadata = {
     apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
   },
   manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "Rubies",
+    statusBarStyle: "default",
+  },
   openGraph: {
     title: "Rubies Cuisine",
     description: "Are you hungry? Don't wait! Home-cooked Ghanaian meals delivered in Achiaman.",
@@ -34,7 +40,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en">
       <body className="antialiased">
         <AuthProvider>
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider>
+            <PushServiceWorkerBoot />
+            {children}
+            <PushOptInPrompt />
+          </ToastProvider>
         </AuthProvider>
       </body>
     </html>

@@ -132,7 +132,38 @@ model RestaurantSettings {
   notifyEmailOnNewOrder   Boolean         @default(true)
   ownerEmails             String[]        @default([])
   ownerPhones             String[]        @default([])
+  pushRemindersEnabled    Boolean         @default(true)
+  /// HH:mm slots in Africa/Accra, twice daily by default
+  pushReminderSlots       String[]        @default(["11:30", "17:30"])
+  pushTimezone            String          @default("Africa/Accra")
   updatedAt               DateTime        @updatedAt
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userId    String?
+  guestId   String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([guestId])
+}
+
+model PushSendLog {
+  id        String   @id @default(cuid())
+  /// e.g. scheduled:2026-09-26:11:30 or offer:<id>
+  slotKey   String   @unique
+  kind      String
+  title     String
+  body      String
+  url       String
+  sentCount Int      @default(0)
+  createdAt DateTime @default(now())
 }
 
 model Offer {

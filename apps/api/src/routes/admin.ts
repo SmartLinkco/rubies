@@ -458,6 +458,15 @@ adminRouter.post("/offers", async (req, res) => {
     },
   });
 
+  if (offer.active) {
+    const { notifyPushOfferLive } = await import("../lib/push.js");
+    void notifyPushOfferLive({
+      id: offer.id,
+      code: offer.code,
+      title: offer.title,
+    }).catch((err) => console.error("[push:offer]", err));
+  }
+
   res.status(201).json({ data: toOfferDto(offer) });
 });
 
@@ -515,6 +524,15 @@ adminRouter.patch("/offers/:id", async (req, res) => {
       ...(parsed.data.active != null ? { active: parsed.data.active } : {}),
     },
   });
+
+  if (offer.active && !existing.active) {
+    const { notifyPushOfferLive } = await import("../lib/push.js");
+    void notifyPushOfferLive({
+      id: offer.id,
+      code: offer.code,
+      title: offer.title,
+    }).catch((err) => console.error("[push:offer]", err));
+  }
 
   res.json({ data: toOfferDto(offer) });
 });

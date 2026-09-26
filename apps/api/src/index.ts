@@ -17,6 +17,7 @@ import {
   paymentsRouter,
   paystackWebhookHandler,
 } from "./routes/payments.js";
+import { pushRouter } from "./routes/push.js";
 import { restaurantRouter } from "./routes/restaurant.js";
 
 const app = express();
@@ -54,6 +55,7 @@ app.use("/orders", ordersRouter);
 app.use("/offers", offersRouter);
 app.use("/catering", cateringRouter);
 app.use("/payments", paymentsRouter);
+app.use("/push", pushRouter);
 app.use("/admin", adminRouter);
 
 app.use(notFound);

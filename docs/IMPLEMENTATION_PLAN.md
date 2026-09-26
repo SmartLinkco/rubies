@@ -143,10 +143,11 @@ Auth-separated admin (role `admin`).
 
 - Pluggable SMS provider (interface ready; wire when API docs arrive)
 - Transactional email via **Resend** (`RESEND_API_KEY` + `RESEND_FROM_EMAIL`)
+- **Web Push (PWA):** opt-in everyone; twice-daily Accra slots + offer/dish events; deep links to menu/offers/dish; Android + iOS (Home Screen); first-visit prompt + Profile → Notifications
 - Admin config respected per event type
 - Retry / failure logging; no duplicate blasts on webhook retries
 
-**Exit:** New order notifies owner by configured channels; customer gets status pings.
+**Exit:** New order notifies owner by configured channels; customer gets status pings + optional meal reminders.
 
 ---
 

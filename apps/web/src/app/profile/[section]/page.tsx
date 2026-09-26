@@ -1,15 +1,11 @@
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
+import { NotificationsPanel } from "@/components/NotificationsPanel";
 import { getRestaurant } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
 
 const stubs = [
-  {
-    slug: "notifications",
-    title: "Notifications",
-    body: "Order alerts will land here once SMS/email are wired in Phase 7.",
-  },
   {
     slug: "help",
     title: "Help & Support",
@@ -18,7 +14,7 @@ const stubs = [
 ] as const;
 
 export function generateStaticParams() {
-  return stubs.map((s) => ({ section: s.slug }));
+  return [{ section: "notifications" }, ...stubs.map((s) => ({ section: s.slug }))];
 }
 
 export default async function ProfileStubPage({
@@ -28,6 +24,19 @@ export default async function ProfileStubPage({
 }) {
   const { section } = await params;
   const restaurant = await getRestaurant();
+
+  if (section === "notifications") {
+    return (
+      <AppShell restaurant={restaurant} title="Notifications" tagline="Profile">
+        <div className="px-4">
+          <Link href="/profile" className="text-sm font-medium text-muted">
+            ← Profile
+          </Link>
+          <NotificationsPanel />
+        </div>
+      </AppShell>
+    );
+  }
 
   if (section === "coupons") {
     return (
