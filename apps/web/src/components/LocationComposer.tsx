@@ -52,7 +52,7 @@ export function LocationComposer({
     return () => window.clearTimeout(handle);
   }, [query]);
 
-  async function useGps() {
+  async function locateWithGps() {
     setBusy(true);
     setError(null);
     try {
@@ -130,7 +130,7 @@ export function LocationComposer({
 
       <button
         type="button"
-        onClick={() => void useGps()}
+        onClick={() => void locateWithGps()}
         disabled={busy}
         className="flex w-full items-center justify-center gap-2 rounded-full bg-rubies-blue px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
       >

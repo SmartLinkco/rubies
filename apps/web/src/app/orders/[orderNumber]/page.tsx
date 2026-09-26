@@ -4,7 +4,7 @@ import type { OrderDto, OrderStatus } from "@rubies/shared";
 import { brand } from "@rubies/shared";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { useToast } from "@/components/ToastProvider";
 import { ApiRequestError, clientApi } from "@/lib/client-api";
@@ -71,11 +71,11 @@ function OrderDetailInner() {
   const [reviewBusy, setReviewBusy] = useState(false);
   const paymentAttempted = useRef(false);
 
-  async function refresh() {
+  const refresh = useCallback(async () => {
     const data = await clientApi.getOrder(orderNumber);
     setOrder(data);
     return data;
-  }
+  }, [orderNumber]);
 
   useEffect(() => {
     let cancelled = false;
@@ -106,7 +106,7 @@ function OrderDetailInner() {
       });
     }, 12000);
     return () => window.clearInterval(id);
-  }, [order?.status, orderNumber]);
+  }, [order, refresh]);
 
   useEffect(() => {
     if (!order || paymentAttempted.current) return;
