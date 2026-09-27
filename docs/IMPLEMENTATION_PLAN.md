@@ -66,7 +66,7 @@ v1 = **status timeline** (Confirmed → Preparing → On the way → Delivered),
 **Goal:** Guest path works; accounts unlock history/saved data.
 
 - Guest session (cookie/device id) for cart
-- Sign up / login (email+password or phone OTP — pick one primary; recommend **phone OTP** for Ghana delivery UX once SMS docs arrive; email/password fine for v1 if SMS delayed)
+- Sign up / login (email+password; **email OTP** for signup verify + forgot-password; login stays password-only)
 - Profile: name, phone, saved addresses, payment method prefs (display only until Paystack)
 - Logout; merge guest cart → user cart on login
 

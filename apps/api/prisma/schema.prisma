@@ -56,6 +56,24 @@ model User {
   cart              Cart?
 }
 
+/// Short-lived email OTP for signup verification and password reset.
+model EmailOtpChallenge {
+  id          String    @id @default(cuid())
+  email       String
+  /// signup | reset
+  purpose     String
+  codeHash    String
+  /// Signup: { passwordHash, name?, phone? }
+  payloadJson Json?
+  expiresAt   DateTime
+  attempts    Int       @default(0)
+  consumedAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([email, purpose])
+  @@index([expiresAt])
+}
+
 model Cart {
   id        String     @id @default(cuid())
   guestId   String?    @unique

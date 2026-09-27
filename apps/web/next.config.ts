@@ -12,14 +12,20 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 828, 1080, 1200],
     imageSizes: [64, 96, 128, 256, 384],
+    /** Keep optimized Neon dish photos warm across navigations */
+    minimumCacheTTL: 60 * 60 * 24 * 7,
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "*.aws.neon.tech",
+        hostname: "**.aws.neon.tech",
       },
       {
         protocol: "https",
-        hostname: "*.neon.tech",
+        hostname: "**.neon.tech",
+      },
+      {
+        protocol: "https",
+        hostname: "br-royal-rice-b5yequx9.storage.c-7.us-east-2.aws.neon.tech",
       },
     ],
   },

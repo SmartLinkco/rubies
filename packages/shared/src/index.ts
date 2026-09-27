@@ -1,7 +1,7 @@
 export const brand = {
   name: "Rubies Cuisine",
   tagline: "Are you hungry? Don't wait!",
-  phones: ["0277491795", "0593933901"],
+  phones: ["0593933901", "0277491795"],
   whatsapp: "233277491795",
   address: "Rubies Cuisine, MMX5+9C2, Achiaman",
   currency: "GHS",

@@ -367,4 +367,56 @@ export function cateringEmailSubject(inquiry: CateringInquiryEmail) {
   return `${kind} inquiry — ${inquiry.name}`;
 }
 
+export function otpEmailHtml(input: {
+  code: string;
+  purpose: "signup" | "reset";
+  minutes: number;
+}) {
+  const heading =
+    input.purpose === "signup" ? "Verify your email" : "Reset your password";
+  const blurb =
+    input.purpose === "signup"
+      ? "Use this code to finish creating your Rubies Cuisine account."
+      : "Use this code to set a new password for your Rubies Cuisine account.";
+
+  const bodyHtml = `
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.55;color:${C.ink};">${escapeHtml(blurb)}</p>
+    <div style="margin:8px 0 18px;padding:18px 16px;border-radius:18px;background:${C.cream};text-align:center;">
+      <p style="margin:0 0 6px;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${C.muted};">Your code</p>
+      <p style="margin:0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:32px;font-weight:700;letter-spacing:0.28em;color:${C.red};">${escapeHtml(input.code)}</p>
+    </div>
+    <p style="margin:0;font-size:13px;line-height:1.5;color:${C.muted};">Expires in ${input.minutes} minutes. If you didn&apos;t request this, you can ignore this email.</p>
+  `;
+
+  return emailShell({
+    preheader: `${heading}: ${input.code}`,
+    title: heading,
+    eyebrow: "Security",
+    bodyHtml,
+  });
+}
+
+export function otpEmailText(input: {
+  code: string;
+  purpose: "signup" | "reset";
+  minutes: number;
+}) {
+  const heading =
+    input.purpose === "signup" ? "Verify your email" : "Reset your password";
+  return [
+    heading,
+    "",
+    `Your Rubies Cuisine code: ${input.code}`,
+    `Expires in ${input.minutes} minutes.`,
+    "",
+    "If you didn't request this, ignore this email.",
+  ].join("\n");
+}
+
+export function otpEmailSubject(purpose: "signup" | "reset") {
+  return purpose === "signup"
+    ? "Your Rubies Cuisine signup code"
+    : "Your Rubies Cuisine password reset code";
+}
+
 export type { OrderStatus };

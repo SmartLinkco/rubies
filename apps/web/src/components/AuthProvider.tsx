@@ -18,12 +18,7 @@ type AuthContextValue = {
   loading: boolean;
   refresh: () => Promise<void>;
   login: (email: string, password: string) => Promise<UserDto>;
-  register: (input: {
-    email: string;
-    password: string;
-    name?: string;
-    phone?: string;
-  }) => Promise<void>;
+  completeRegistration: (email: string, code: string) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: UserDto | null) => void;
 };
@@ -42,7 +37,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       if (err instanceof ApiRequestError && err.status === 401) {
         setUser(null);
-        // Still ensure guest cookie + cart exist
         try {
           applyServerCart(await pushLocalCartToServer());
         } catch {
@@ -72,20 +66,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return data.user;
   }, []);
 
-  const register = useCallback(
-    async (input: {
-      email: string;
-      password: string;
-      name?: string;
-      phone?: string;
-    }) => {
-      await pushLocalCartToServer();
-      const data = await clientApi.register(input);
-      setUser(data.user);
-      applyServerCart(await clientApi.getCart());
-    },
-    [],
-  );
+  const completeRegistration = useCallback(async (email: string, code: string) => {
+    await pushLocalCartToServer();
+    const data = await clientApi.registerVerify({ email, code });
+    setUser(data.user);
+    applyServerCart(await clientApi.getCart());
+  }, []);
 
   const logout = useCallback(async () => {
     await clientApi.logout();
@@ -93,8 +79,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, loading, refresh, login, register, logout, setUser }),
-    [user, loading, refresh, login, register, logout],
+    () => ({
+      user,
+      loading,
+      refresh,
+      login,
+      completeRegistration,
+      logout,
+      setUser,
+    }),
+    [user, loading, refresh, login, completeRegistration, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

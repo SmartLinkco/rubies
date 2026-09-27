@@ -69,6 +69,33 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const clientApi = {
   me: () => request<{ user: UserDto }>("/auth/me"),
+  registerStart: (body: {
+    email: string;
+    password: string;
+    name?: string;
+    phone?: string;
+  }) =>
+    request<{ email: string; expiresInSec: number; devCode?: string }>(
+      "/auth/register/start",
+      {
+        method: "POST",
+        body: JSON.stringify(body),
+      },
+    ),
+  registerResend: (body: { email: string }) =>
+    request<{ email: string; expiresInSec: number; devCode?: string }>(
+      "/auth/register/resend",
+      {
+        method: "POST",
+        body: JSON.stringify(body),
+      },
+    ),
+  registerVerify: (body: { email: string; code: string }) =>
+    request<{ user: UserDto }>("/auth/register/verify", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  /** @deprecated Prefer registerStart + registerVerify */
   register: (body: {
     email: string;
     password: string;
@@ -81,6 +108,19 @@ export const clientApi = {
     }),
   login: (body: { email: string; password: string }) =>
     request<{ user: UserDto; cart: CartDto | null }>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  passwordForgot: (body: { email: string }) =>
+    request<{ ok: boolean; email: string; message: string; devCode?: string }>(
+      "/auth/password/forgot",
+      {
+        method: "POST",
+        body: JSON.stringify(body),
+      },
+    ),
+  passwordReset: (body: { email: string; code: string; password: string }) =>
+    request<{ ok: boolean }>("/auth/password/reset", {
       method: "POST",
       body: JSON.stringify(body),
     }),
