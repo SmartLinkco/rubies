@@ -5,7 +5,7 @@ type BrandMarkProps = {
   priority?: boolean;
 };
 
-/** Square Rubies logo mark (red badge + R). */
+/** Official Rubies Cuisine logo (red field, rounded corners). */
 export function BrandMark({
   size = 40,
   className = "",
@@ -19,7 +19,7 @@ export function BrandMark({
       alt={alt}
       width={size}
       height={size}
-      className={`object-contain ${className}`}
+      className={`rounded-[22%] object-cover ${className}`}
       draggable={false}
       decoding="async"
       fetchPriority={priority ? "high" : "auto"}

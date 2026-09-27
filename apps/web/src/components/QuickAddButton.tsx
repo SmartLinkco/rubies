@@ -36,9 +36,11 @@ export function QuickAddButton({
         setPulse(true);
         window.setTimeout(() => setPulse(false), 500);
         toast({
-          message: `${item.name} added to cart`,
+          message: `${item.name} added`,
           href: "/cart",
-          hrefLabel: "View",
+          hrefLabel: "View cart",
+          size: "sm",
+          durationMs: 5000,
         });
       }}
       className={`flex h-8 w-8 items-center justify-center rounded-full bg-rubies-red text-lg font-semibold leading-none text-white shadow-soft transition hover:bg-rubies-red-deep active:scale-95 disabled:bg-black/15 disabled:text-muted ${

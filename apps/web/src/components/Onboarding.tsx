@@ -54,8 +54,7 @@ export function Onboarding() {
     return (
       <div className="fixed inset-0 z-[60] flex items-center justify-center bg-cream animate-fade-in">
         <div className="text-center animate-rise">
-          <BrandMark size={80} className="mx-auto mb-5 shadow-soft" priority />
-          <h1 className="font-display text-4xl font-bold text-ink">Rubies Cuisine</h1>
+          <BrandMark size={96} className="mx-auto mb-5 shadow-soft" priority />
           <p className="mt-2 text-sm font-medium tracking-wide text-rubies-blue">
             Are you hungry? Don&apos;t wait!
           </p>

@@ -48,9 +48,11 @@ export function AddToCartButton({
         setPulse(true);
         window.setTimeout(() => setPulse(false), 700);
         toast({
-          message: `${item.name} added to cart`,
+          message: `${item.name} added`,
           href: "/cart",
-          hrefLabel: "View",
+          hrefLabel: "View cart",
+          size: "sm",
+          durationMs: 5000,
         });
       }}
       className={`w-full rounded-full bg-rubies-red px-6 py-3.5 text-sm font-semibold text-white shadow-soft transition hover:bg-rubies-red-deep active:scale-[0.98] ${

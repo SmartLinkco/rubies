@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { BrandMark } from "@/components/BrandMark";
 import { useCart, useHasMounted } from "@/lib/cart";
 import { useDeliveryLocation } from "@/components/LocationProvider";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
@@ -14,16 +16,28 @@ export function HomeTopBar({
 }) {
   const { count } = useCart();
   const mounted = useHasMounted();
+  const pathname = usePathname();
+  const onHome = pathname === "/";
+
+  const logo = (
+    <BrandMark size={40} className="shadow-sm ring-1 ring-black/[0.06]" />
+  );
 
   return (
     <header className="animate-rise flex items-start justify-between gap-3">
-      <Link
-        href="/profile"
-        className="mt-1 flex h-10 w-10 items-center justify-center rounded-full text-ink"
-        aria-label="Open profile"
-      >
-        <MenuIcon />
-      </Link>
+      {onHome ? (
+        <span className="mt-0.5 inline-flex" aria-current="page" aria-label="Rubies Cuisine home">
+          {logo}
+        </span>
+      ) : (
+        <Link
+          href="/"
+          className="mt-0.5 inline-flex transition active:scale-[0.97]"
+          aria-label="Go to home"
+        >
+          {logo}
+        </Link>
+      )}
 
       <div className="min-w-0 flex-1 pt-0.5 text-center">
         <h1 className="font-display text-[1.65rem] font-bold leading-tight tracking-tight text-ink">
@@ -140,19 +154,6 @@ export function DeliveryHeroCard({
         </div>
       </div>
     </section>
-  );
-}
-
-function MenuIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M4 7h16M4 12h10M4 17h16"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
   );
 }
 
