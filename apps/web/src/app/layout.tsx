@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { AuthProvider } from "@/components/AuthProvider";
-import { PushOptInPrompt, PushServiceWorkerBoot } from "@/components/PushOptInPrompt";
+import { PwaPromptStack, PushServiceWorkerBoot } from "@/components/PushOptInPrompt";
 import { ToastProvider } from "@/components/ToastProvider";
 import "./globals.css";
 
@@ -43,7 +43,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <ToastProvider>
             <PushServiceWorkerBoot />
             {children}
-            <PushOptInPrompt />
+            <PwaPromptStack />
           </ToastProvider>
         </AuthProvider>
       </body>

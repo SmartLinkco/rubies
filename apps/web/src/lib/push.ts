@@ -22,7 +22,9 @@ export function pushSupported() {
 }
 
 export async function registerServiceWorker() {
-  if (!pushSupported()) return null;
+  if (typeof window === "undefined" || !("serviceWorker" in navigator)) {
+    return null;
+  }
   return navigator.serviceWorker.register("/sw.js", { scope: "/" });
 }
 

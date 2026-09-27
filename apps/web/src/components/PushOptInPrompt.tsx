@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { InstallAppPrompt } from "@/components/InstallAppPrompt";
 import {
   getExistingSubscription,
   getPushPermission,
@@ -14,26 +15,28 @@ import {
   wasPushPromptAsked,
   wasPushPromptDismissed,
 } from "@/lib/push";
+import { shouldOfferInstall } from "@/lib/pwa-install";
 
-export function PushOptInPrompt() {
+/**
+ * Notifications opt-in. Waits until install prompt has settled so install shows first.
+ */
+export function PushOptInPrompt({
+  installReady = true,
+}: {
+  /** False while InstallAppPrompt is still active / undecided. */
+  installReady?: boolean;
+}) {
   const [visible, setVisible] = useState(false);
   const [busy, setBusy] = useState(false);
   const [iosHint, setIosHint] = useState(false);
 
   useEffect(() => {
+    if (!installReady) return;
+
     let cancelled = false;
 
     async function maybeShow() {
-      if (!pushSupported()) {
-        if (isIosSafari() && !isStandalonePwa() && !wasPushPromptDismissed()) {
-          // Still show install hint on iOS Safari (push needs Home Screen)
-          if (!cancelled) {
-            setIosHint(true);
-            setVisible(true);
-          }
-        }
-        return;
-      }
+      if (!pushSupported()) return;
 
       void registerServiceWorker();
 
@@ -47,8 +50,7 @@ export function PushOptInPrompt() {
       }
       if (Notification.permission === "denied") return;
 
-      // Delay so first paint / onboarding aren't interrupted
-      await new Promise((r) => setTimeout(r, 2200));
+      await new Promise((r) => setTimeout(r, 1200));
       if (cancelled) return;
 
       if (isIosSafari() && !isStandalonePwa()) {
@@ -61,7 +63,7 @@ export function PushOptInPrompt() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [installReady]);
 
   if (!visible) return null;
 
@@ -69,7 +71,6 @@ export function PushOptInPrompt() {
     setBusy(true);
     try {
       if (iosHint && !isStandalonePwa()) {
-        // Can't request push until installed; dismiss and point to Profile
         markPushPromptAsked();
         setVisible(false);
         return;
@@ -96,7 +97,7 @@ export function PushOptInPrompt() {
         <p className="text-[15px] font-semibold text-ink">Meal reminders?</p>
         <p className="mt-1 text-sm leading-snug text-muted">
           {iosHint && !isStandalonePwa()
-            ? "On iPhone, add Rubies to your Home Screen (Share → Add to Home Screen), then turn on notifications from Profile."
+            ? "Open Rubies from your Home Screen, then turn on notifications from Profile."
             : "Get lunch & dinner nudges, plus new offers when we're open."}
         </p>
         <div className="mt-3 flex gap-2">
@@ -128,9 +129,29 @@ export function PushOptInPrompt() {
 /** Registers SW early without showing UI — used from layout. */
 export function PushServiceWorkerBoot() {
   useEffect(() => {
-    if (!pushSupported()) return;
     void registerServiceWorker();
-    void getPushPermission();
+    if (pushSupported()) {
+      void getPushPermission();
+    }
   }, []);
   return null;
+}
+
+/** Coordinates install → notifications ordering. */
+export function PwaPromptStack() {
+  const [installReady, setInstallReady] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return !shouldOfferInstall();
+  });
+
+  const onInstallSettled = useCallback(() => {
+    setInstallReady(true);
+  }, []);
+
+  return (
+    <>
+      <InstallAppPrompt onSettled={onInstallSettled} />
+      <PushOptInPrompt installReady={installReady} />
+    </>
+  );
 }
